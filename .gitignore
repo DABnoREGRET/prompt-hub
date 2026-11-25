@@ -1,0 +1,29 @@
+# Local reference & planning files (never commit to public repo)
+Requirement.md
+tasks/
+.serena/
+.codebase-memory/
+
+# Dependencies & build outputs
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Local PGlite / database files
+data/
+*.db
+*.sqlite
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+*.log
