@@ -21,7 +21,7 @@ for (const envPath of candidateEnvPaths) {
 function parseOrigins(raw: string): string[] {
   return raw
     .split(',')
-    .map((origin) => origin.trim())
+    .map((origin) => origin.trim().replace(/\/+$/, ''))
     .filter(Boolean);
 }
 
@@ -41,4 +41,5 @@ export const env = {
   ),
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
   AUTO_MIGRATE: process.env.AUTO_MIGRATE !== 'false',
+  AUTO_SEED: process.env.AUTO_SEED === 'true',
 };

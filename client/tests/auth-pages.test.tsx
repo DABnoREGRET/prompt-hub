@@ -145,6 +145,23 @@ describe('Auth Pages, ProtectedRoute & UI Status Primitives', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/403 — access restricted/i);
   });
 
+  it('shows API Connected status pill on Explore page when health probe returns 200', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          status: 'ok',
+          service: 'prompt-hub-api',
+          db: 'connected',
+          timestamp: '2026-11-26T14:00:00.000Z',
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      ),
+    );
+
+    renderWithProviders('/');
+    expect(await screen.findByText('API Connected')).toBeInTheDocument();
+  });
+
   it('renders LoadingSkeleton, EmptyState, and triggers ErrorState retry callback', async () => {
     const onRetry = vi.fn();
     render(

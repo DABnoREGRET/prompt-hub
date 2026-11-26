@@ -2,10 +2,14 @@ import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { closeDb } from './db/client.js';
 import { runMigrations } from './db/migrate.js';
+import { seedDatabase } from './db/seed.js';
 
 async function bootstrap() {
   if (env.AUTO_MIGRATE) {
     await runMigrations();
+  }
+  if (env.AUTO_SEED) {
+    await seedDatabase();
   }
 
   const app = createApp();
