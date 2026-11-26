@@ -10,7 +10,8 @@ export function createApp() {
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || env.CORS_ORIGINS.includes(origin)) {
+        const normalized = origin?.replace(/\/+$/, '');
+        if (!normalized || env.CORS_ORIGINS.includes(normalized)) {
           callback(null, true);
           return;
         }

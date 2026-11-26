@@ -1,19 +1,71 @@
 import { BookOpen, Sparkles, Terminal } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { healthApi } from '../api/auth.api';
 import { useAuth } from '../context/AuthContext';
+
+type ApiStatus = 'checking' | 'online' | 'offline';
 
 export function ExploreShellPage() {
   const { isAuthenticated, user } = useAuth();
+  const [apiStatus, setApiStatus] = useState<ApiStatus>('checking');
+
+  useEffect(() => {
+    let cancelled = false;
+    healthApi()
+      .then((res) => {
+        if (!cancelled) {
+          setApiStatus(res.status === 'ok' ? 'online' : 'offline');
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setApiStatus('offline');
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              Snippet &amp; Prompt Workspace
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                Snippet &amp; Prompt Workspace
+              </span>
+              <span
+                role="status"
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                  apiStatus === 'online'
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : apiStatus === 'offline'
+                      ? 'bg-amber-50 text-amber-800'
+                      : 'bg-slate-100 text-slate-600'
+                }`}
+              >
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    apiStatus === 'online'
+                      ? 'bg-emerald-500'
+                      : apiStatus === 'offline'
+                        ? 'bg-amber-500'
+                        : 'bg-slate-400'
+                  }`}
+                  aria-hidden="true"
+                />
+                {apiStatus === 'online'
+                  ? 'API Connected'
+                  : apiStatus === 'offline'
+                    ? 'API Offline / Waking up'
+                    : 'Connecting to API...'}
+              </span>
+            </div>
             <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
               Explore Reusable Code Snippets &amp; AI Prompts
             </h1>
