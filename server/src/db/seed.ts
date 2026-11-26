@@ -263,8 +263,25 @@ Function:
     tags: ['testing', 'typescript'],
   },
   {
+    title: 'Express JWT Bearer Auth Middleware',
+    authorEmail: 'son@prompthub.dev',
+    categorySlug: 'backend-api',
+    entryType: 'SNIPPET',
+    language: 'typescript',
+    description: 'Verifies Bearer JWT tokens and enforces active account status.',
+    content: `export async function authenticate(req: Request, _res: Response, next: NextFunction) {
+  const token = req.headers.authorization?.replace(/^Bearer\s+/i, '');
+  if (!token) return next(AppError.unauthorized('Missing Bearer authentication token'));
+  const claims = verifyAccessToken(token);
+  req.user = await findPublicUserById(Number(claims.sub));
+  return next();
+}`,
+    visibility: 'PUBLIC',
+    tags: ['express', 'typescript', 'api-design'],
+  },
+  {
     title: 'Express Parameterized Transaction Helper',
-    authorEmail: 'dab@prompthub.dev',
+    authorEmail: 'son@prompthub.dev',
     categorySlug: 'backend-api',
     entryType: 'SNIPPET',
     language: 'typescript',
@@ -365,6 +382,12 @@ export async function seedDatabase(dbArg?: DbClient): Promise<void> {
       role: 'USER',
     },
     {
+      username: 'sonpham',
+      email: 'son@prompthub.dev',
+      passwordHash: userHash,
+      role: 'USER',
+    },
+    {
       username: 'phananh',
       email: 'phan@prompthub.dev',
       passwordHash: userHash,
@@ -458,7 +481,16 @@ export async function seedDatabase(dbArg?: DbClient): Promise<void> {
   }
 
   const dabId = userIdByEmail.get('dab@prompthub.dev');
+  const sonId = userIdByEmail.get('son@prompthub.dev');
   const phanId = userIdByEmail.get('phan@prompthub.dev');
+  if (sonId && entryIds.length >= 6) {
+    for (const idx of [0, 1, 5]) {
+      await db.query(
+        'INSERT INTO bookmarks (user_id, entry_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [sonId, entryIds[idx]],
+      );
+    }
+  }
   if (dabId && entryIds.length >= 4) {
     for (const idx of [0, 1, 2, 3]) {
       await db.query(

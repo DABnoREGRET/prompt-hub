@@ -50,6 +50,7 @@ npm run db:seed
 |---|---|---|
 | `ADMIN` | `admin@prompthub.dev` | `Admin123!` |
 | `USER` | `dab@prompthub.dev` | `PromptHub123!` |
+| `USER` | `son@prompthub.dev` | `PromptHub123!` |
 | `USER` | `phan@prompthub.dev` | `PromptHub123!` |
 
 ### 5. Run Frontend & Backend
