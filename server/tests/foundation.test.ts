@@ -4,7 +4,13 @@ import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { createApp } from '../src/app.js';
-import { closeDb, createPgliteClient, DbClient, setDbForTests } from '../src/db/client.js';
+import {
+  closeDb,
+  createPgliteClient,
+  DbClient,
+  setDbForTests,
+  shouldUseSsl,
+} from '../src/db/client.js';
 import { runMigrations } from '../src/db/migrate.js';
 import { seedDatabase } from '../src/db/seed.js';
 import { errorHandler } from '../src/middlewares/errorHandler.js';
@@ -24,6 +30,17 @@ describe('Backend & Database Foundation', () => {
     await closeDb();
   });
 
+  it('detects SSL mode accurately for Render internal vs external PostgreSQL URLs', () => {
+    expect(shouldUseSsl('postgresql://prompthub:pw@dpg-abc123-a/prompthub')).toBe(false);
+    expect(shouldUseSsl('postgresql://postgres:postgres@localhost:5432/prompthub')).toBe(false);
+    expect(
+      shouldUseSsl(
+        'postgresql://prompthub:pw@dpg-abc123-a.singapore-postgres.render.com/prompthub',
+      ),
+    ).toBe(true);
+    expect(shouldUseSsl('postgresql://u:p@db.example.com:5432/app?sslmode=require')).toBe(true);
+  });
+
   it('migrates schema and seeds demo records idempotently', async () => {
     await seedDatabase(db);
 
@@ -32,18 +49,18 @@ describe('Backend & Database Foundation', () => {
     const tags = await db.query<{ count: string }>('SELECT COUNT(*)::text AS count FROM tags');
     const entries = await db.query<{ count: string }>('SELECT COUNT(*)::text AS count FROM entries');
 
-    expect(Number(users.rows[0].count)).toBe(3);
+    expect(Number(users.rows[0].count)).toBe(4);
     expect(Number(categories.rows[0].count)).toBe(6);
     expect(Number(tags.rows[0].count)).toBe(12);
-    expect(Number(entries.rows[0].count)).toBe(15);
+    expect(Number(entries.rows[0].count)).toBe(16);
 
-    const dabUser = await db.query<{ password_hash: string }>(
+    const sonUser = await db.query<{ password_hash: string }>(
       'SELECT password_hash FROM users WHERE email = $1',
-      ['dab@prompthub.dev'],
+      ['son@prompthub.dev'],
     );
-    expect(dabUser.rows).toHaveLength(1);
-    expect(dabUser.rows[0].password_hash).not.toBe('PromptHub123!');
-    expect(await bcrypt.compare('PromptHub123!', dabUser.rows[0].password_hash)).toBe(true);
+    expect(sonUser.rows).toHaveLength(1);
+    expect(sonUser.rows[0].password_hash).not.toBe('PromptHub123!');
+    expect(await bcrypt.compare('PromptHub123!', sonUser.rows[0].password_hash)).toBe(true);
   });
 
   it('returns 200 ok from GET /api/health', async () => {

@@ -23,6 +23,16 @@ export interface DbClient {
   close(): Promise<void>;
 }
 
+/** Determines whether PostgreSQL connections should enable TLS (external Render hosts or sslmode=require). */
+export function shouldUseSsl(connectionString: string): boolean {
+  if (process.env.DB_SSL === 'true') return true;
+  if (process.env.DB_SSL === 'false') return false;
+  return (
+    connectionString.includes('.render.com') ||
+    connectionString.includes('sslmode=require')
+  );
+}
+
 export function createPgliteClient(dataDir?: string): DbClient {
   const isMemory = !dataDir || dataDir === 'memory://';
   if (!isMemory) {
@@ -78,10 +88,9 @@ export function createPgliteClient(dataDir?: string): DbClient {
 export function createPgPoolClient(connectionString: string): DbClient {
   const pool = new pg.Pool({
     connectionString,
-    ssl:
-      env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: false }
-        : undefined,
+    ssl: shouldUseSsl(connectionString)
+      ? { rejectUnauthorized: false }
+      : undefined,
   });
 
   const wrapRunner = (runner: pg.Pool | pg.PoolClient): DbClient => ({

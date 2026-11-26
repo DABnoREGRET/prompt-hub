@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { ExploreShellPage } from './pages/ExploreShellPage';
 import { LoginPage } from './pages/LoginPage';
+import { MyVaultPage } from './pages/MyVaultPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { RegisterPage } from './pages/RegisterPage';
 
@@ -20,10 +21,7 @@ export function AppRoutes() {
           path="/vault"
           element={
             <ProtectedRoute>
-              <EmptyState
-                title="My Vault"
-                description="Your personal snippet and prompt workspace will populate once entries endpoints connect."
-              />
+              <MyVaultPage />
             </ProtectedRoute>
           }
         />

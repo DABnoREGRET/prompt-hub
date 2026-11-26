@@ -1,14 +1,47 @@
-import { BookOpen, Sparkles, Terminal } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Sparkles } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { healthApi } from '../api/auth.api';
+import { ApiClientError } from '../api/client';
+import { fetchCategories, fetchPublicEntries } from '../api/entries.api';
+import { EntryPreviewCard } from '../components/entries/EntryPreviewCard';
+import { EmptyState, ErrorState, LoadingSkeleton } from '../components/ui/StatusState';
 import { useAuth } from '../context/AuthContext';
+import type { CategoryItem, EntrySummary } from '../types/entry';
 
 type ApiStatus = 'checking' | 'online' | 'offline';
 
 export function ExploreShellPage() {
   const { isAuthenticated, user } = useAuth();
   const [apiStatus, setApiStatus] = useState<ApiStatus>('checking');
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [entries, setEntries] = useState<EntrySummary[]>([]);
+  const [totalEntries, setTotalEntries] = useState(0);
+  const [loadingCatalog, setLoadingCatalog] = useState(true);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
+
+  const loadCatalog = useCallback(async () => {
+    setLoadingCatalog(true);
+    setCatalogError(null);
+
+    try {
+      const [catsRes, entriesRes] = await Promise.all([
+        fetchCategories().catch(() => ({ categories: [] as CategoryItem[] })),
+        fetchPublicEntries(1, 12),
+      ]);
+      setCategories(catsRes.categories);
+      setEntries(entriesRes.data);
+      setTotalEntries(entriesRes.pagination.total);
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        setCatalogError(err.message);
+      } else {
+        setCatalogError('Unable to load community snippets and prompts.');
+      }
+    } finally {
+      setLoadingCatalog(false);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -24,10 +57,12 @@ export function ExploreShellPage() {
         }
       });
 
+    void loadCatalog();
+
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadCatalog]);
 
   return (
     <div className="space-y-8">
@@ -41,6 +76,7 @@ export function ExploreShellPage() {
               </span>
               <span
                 role="status"
+                aria-label="API connection status"
                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
                   apiStatus === 'online'
                     ? 'bg-emerald-50 text-emerald-700'
@@ -70,8 +106,7 @@ export function ExploreShellPage() {
               Explore Reusable Code Snippets &amp; AI Prompts
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">
-              Browse community templates, filter by language or category, and run interactive
-              {' '}
+              Browse community templates, filter by language or category, and run interactive{' '}
               <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-800">
                 {'{{variable}}'}
               </code>{' '}
@@ -107,28 +142,42 @@ export function ExploreShellPage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-lg border border-slate-200 bg-white p-5">
-          <Terminal className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-          <h2 className="mt-3 text-sm font-semibold text-slate-900">Typed Code Snippets</h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Store battle-tested TypeScript, SQL, React, and CI snippets with clear language tags.
-          </p>
+      {categories.length > 0 ? (
+        <section aria-label="Categories" className="flex flex-wrap gap-2">
+          {categories.map((cat) => (
+            <span
+              key={cat.id}
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700"
+            >
+              {cat.name} ({cat.entryCount})
+            </span>
+          ))}
+        </section>
+      ) : null}
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Community Catalog {totalEntries > 0 ? `(${totalEntries})` : ''}
+          </h2>
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-5">
-          <Sparkles className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-          <h2 className="mt-3 text-sm font-semibold text-slate-900">Prompt Playground</h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Parameterize reusable AI instructions with live variable substitution before copying.
-          </p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-5">
-          <BookOpen className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-          <h2 className="mt-3 text-sm font-semibold text-slate-900">Public &amp; Private Vaults</h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Share team standards publicly or keep personal incident and review prompts private.
-          </p>
-        </div>
+
+        {loadingCatalog ? (
+          <LoadingSkeleton count={6} />
+        ) : catalogError ? (
+          <ErrorState message={catalogError} onRetry={() => void loadCatalog()} />
+        ) : entries.length === 0 ? (
+          <EmptyState
+            title="No public entries yet"
+            description="Seed the database or sign in to create the first snippet or prompt."
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {entries.map((entry) => (
+              <EntryPreviewCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
