@@ -3,6 +3,8 @@ Requirement.md
 tasks/
 .serena/
 .codebase-memory/
+.taste-skill/
+shots/
 
 # Dependencies & build outputs
 node_modules/

@@ -51,21 +51,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={toast.id}
             role="status"
-            className={`flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm shadow-sm ${
+            className={`flex items-center justify-between gap-3 rounded-md border px-4 py-3 text-sm shadow-sm ${
               toast.variant === 'success'
-                ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+                ? 'border-emerald-500/40 bg-[var(--p-surface)] text-[var(--p-ink)]'
                 : toast.variant === 'error'
-                  ? 'border-rose-200 bg-rose-50 text-rose-900'
-                  : 'border-slate-200 bg-white text-slate-800'
+                  ? 'border-rose-500/40 bg-[var(--p-surface)] text-[var(--p-ink)]'
+                  : 'border-[var(--p-hairline)] bg-[var(--p-surface)] text-[var(--p-ink)]'
             }`}
           >
             <div className="flex items-center gap-2">
               {toast.variant === 'success' ? (
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" aria-hidden="true" />
               ) : toast.variant === 'error' ? (
-                <XCircle className="h-4 w-4 shrink-0 text-rose-600" aria-hidden="true" />
+                <XCircle className="h-4 w-4 shrink-0 text-rose-500" aria-hidden="true" />
               ) : (
-                <Info className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+                <Info className="h-4 w-4 shrink-0 text-[var(--p-accent)]" aria-hidden="true" />
               )}
               <span>{toast.message}</span>
             </div>
@@ -73,7 +73,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               type="button"
               onClick={() => dismiss(toast.id)}
               aria-label="Dismiss notification"
-              className="rounded p-1 text-slate-500 hover:bg-slate-200/60"
+              className="rounded p-1 text-[var(--p-muted)] hover:bg-[var(--p-elevated)] hover:text-[var(--p-ink)]"
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
