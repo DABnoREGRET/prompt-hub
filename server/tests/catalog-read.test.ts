@@ -24,7 +24,7 @@ describe('Catalog Read Endpoints (Categories, Tags & Entries)', () => {
     const res = await request(app).get('/api/categories');
 
     expect(res.status).toBe(200);
-    expect(res.body.categories).toHaveLength(6);
+    expect(res.body.categories).toHaveLength(7);
     expect(res.body.categories[0]).toMatchObject({
       id: expect.any(Number),
       name: expect.any(String),
@@ -39,7 +39,7 @@ describe('Catalog Read Endpoints (Categories, Tags & Entries)', () => {
     const res = await request(app).get('/api/tags');
 
     expect(res.status).toBe(200);
-    expect(res.body.tags).toHaveLength(12);
+    expect(res.body.tags).toHaveLength(14);
     expect(res.body.tags[0]).toMatchObject({
       id: expect.any(Number),
       name: expect.any(String),
@@ -54,7 +54,7 @@ describe('Catalog Read Endpoints (Categories, Tags & Entries)', () => {
     expect(res.body.pagination).toEqual({
       page: 1,
       pageSize: 12,
-      total: 14,
+      total: 17,
       totalPages: 2,
     });
     expect(res.body.data).toHaveLength(12);

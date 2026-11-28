@@ -14,7 +14,7 @@ export const createEntrySchema = z.object({
     .trim()
     .min(3, 'Title must be at least 3 characters')
     .max(120, 'Title cannot exceed 120 characters'),
-  entryType: z.enum(['SNIPPET', 'PROMPT']),
+  entryType: z.enum(['SNIPPET', 'PROMPT', 'SKILL']),
   language: z
     .string()
     .trim()
@@ -49,7 +49,7 @@ export const updateEntrySchema = z
       .min(3, 'Title must be at least 3 characters')
       .max(120, 'Title cannot exceed 120 characters')
       .optional(),
-    entryType: z.enum(['SNIPPET', 'PROMPT']).optional(),
+    entryType: z.enum(['SNIPPET', 'PROMPT', 'SKILL']).optional(),
     language: z
       .string()
       .trim()
@@ -81,7 +81,7 @@ export const updateEntrySchema = z
 
 export const listEntriesQuerySchema = z.object({
   q: z.string().trim().max(120).optional(),
-  type: z.enum(['SNIPPET', 'PROMPT']).optional(),
+  type: z.enum(['SNIPPET', 'PROMPT', 'SKILL']).optional(),
   category: z.string().trim().max(60).optional(),
   language: z.string().trim().toLowerCase().max(40).optional(),
   tag: z.string().trim().toLowerCase().max(24).optional(),

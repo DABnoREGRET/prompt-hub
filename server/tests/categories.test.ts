@@ -46,11 +46,11 @@ describe('Categories & Tags Taxonomy API', () => {
 
     const catsRes = await request(app).get('/api/categories');
     expect(catsRes.status).toBe(200);
-    expect(catsRes.body.categories).toHaveLength(6);
+    expect(catsRes.body.categories).toHaveLength(7);
 
     const tagsRes = await request(app).get('/api/tags');
     expect(tagsRes.status).toBe(200);
-    expect(tagsRes.body.tags).toHaveLength(12);
+    expect(tagsRes.body.tags).toHaveLength(14);
   });
 
   it('blocks Guest (401) and USER (403) from creating, updating, or deleting categories', async () => {

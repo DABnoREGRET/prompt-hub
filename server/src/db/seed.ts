@@ -8,12 +8,26 @@ interface SeedEntry {
   title: string;
   authorEmail: string;
   categorySlug: string;
-  entryType: 'SNIPPET' | 'PROMPT';
+  entryType: 'SNIPPET' | 'PROMPT' | 'SKILL';
   language: string;
   description: string;
   content: string;
   visibility: 'PUBLIC' | 'PRIVATE';
   tags: string[];
+}
+
+interface SeedCuratedSkill {
+  title: string;
+  slug: string;
+  harness: string;
+  category: string;
+  description: string;
+  repoUrl: string;
+  docsUrl: string;
+  installCommand: string;
+  skillMdContent: string;
+  tags: string[];
+  isFeatured: boolean;
 }
 
 const SEED_CATEGORIES = [
@@ -36,6 +50,11 @@ const SEED_CATEGORIES = [
     name: 'AI System Prompts',
     slug: 'ai-system-prompts',
     description: 'Parameterized {{variable}} prompts for coding and debugging.',
+  },
+  {
+    name: 'Agent Skills',
+    slug: 'agent-skills',
+    description: 'Portable SKILL.md files and harness instructions ready to copy-paste.',
   },
   {
     name: 'DevOps & CI',
@@ -62,6 +81,8 @@ const SEED_TAGS = [
   'testing',
   'refactoring',
   'api-design',
+  'skill-md',
+  'ai-harness',
 ];
 
 const SEED_ENTRIES: SeedEntry[] = [
@@ -335,6 +356,70 @@ CMD ["node", "dist/index.js"]`,
     tags: ['docker'],
   },
   {
+    title: 'TDD Red-Green-Refactor Harness SKILL.md',
+    authorEmail: 'dab@prompthub.dev',
+    categorySlug: 'agent-skills',
+    entryType: 'SKILL',
+    language: 'markdown',
+    description: 'Portable SKILL.md enforcing failing test first, minimal fix, and full suite green check.',
+    content: `---
+name: test-driven-development
+description: Drives logic implementation and bug fixes with strict red-green-refactor verification.
+---
+
+# Test-Driven Development
+
+## Workflow
+1. Write or update a failing test first in \`tests/\` covering expected and negative edge cases.
+2. Run the targeted test and observe it fail for the expected reason before editing application logic.
+3. Implement the smallest clean change to make the test pass.
+4. Run full \`npm run typecheck && npm test\` before reporting success.`,
+    visibility: 'PUBLIC',
+    tags: ['skill-md', 'ai-harness', 'testing'],
+  },
+  {
+    title: 'REST API Boundary Security Review SKILL.md',
+    authorEmail: 'son@prompthub.dev',
+    categorySlug: 'agent-skills',
+    entryType: 'SKILL',
+    language: 'markdown',
+    description: 'Security audit SKILL.md checking Zod boundary schemas, RBAC ownership, and secrets hygiene.',
+    content: `---
+name: api-boundary-security-audit
+description: Inspects Express controllers, Zod schemas, SQL queries, and RBAC checks prior to merge.
+---
+
+# API Boundary Security Audit
+
+## Checklist
+1. Confirm every POST/PATCH endpoint runs \`validateBody\` before controller execution.
+2. Confirm private resource reads and mutations verify \`authorId === req.user.id || req.user.role === 'ADMIN'\`.
+3. Verify SQL statements use \`$1, $2\` positional bindings and never expose password hashes or tokens.`,
+    visibility: 'PUBLIC',
+    tags: ['skill-md', 'ai-harness', 'api-design'],
+  },
+  {
+    title: 'React Accessible Component Polish SKILL.md',
+    authorEmail: 'phan@prompthub.dev',
+    categorySlug: 'agent-skills',
+    entryType: 'SKILL',
+    language: 'markdown',
+    description: 'Frontend UI engineering SKILL.md covering keyboard navigation, dark/light contrast, and states.',
+    content: `---
+name: frontend-ui-polish
+description: Audits contrast ratios, keyboard focus rings, loading/empty/error states, and mobile breakpoints.
+---
+
+# Frontend UI Polish
+
+## Steps
+1. Verify semantic landmarks (\`header\`, \`nav\`, \`main\`) and visible labels for all inputs.
+2. Check body contrast (>= 7:1) and muted labels (>= 4.5:1) in both dark and light modes.
+3. Verify zero horizontal overflow across 320px, 768px, and 1440px viewports.`,
+    visibility: 'PUBLIC',
+    tags: ['skill-md', 'ai-harness', 'react', 'tailwind'],
+  },
+  {
     title: 'Private Incident Postmortem Prompt',
     authorEmail: 'dab@prompthub.dev',
     categorySlug: 'ai-system-prompts',
@@ -358,6 +443,123 @@ Output executive summary, customer impact, and 3 concrete preventive action item
     content: `curl -i -H "Origin: https://dabnoregret.github.io" https://prompthub-api.onrender.com/api/health`,
     visibility: 'PRIVATE',
     tags: ['api-design'],
+  },
+];
+
+const SEED_CURATED_SKILLS: SeedCuratedSkill[] = [
+  {
+    title: 'Anthropic Official Agent Skills',
+    slug: 'anthropic-official-agent-skills',
+    harness: 'Claude Code',
+    category: 'Official Registry',
+    description: 'Reference repository for SKILL.md specs, document/frontend builders, and modular agent skill authoring.',
+    repoUrl: 'https://github.com/anthropics/skills',
+    docsUrl: 'https://agentskills.io',
+    installCommand: 'npx skills add anthropics/skills',
+    skillMdContent: `---
+name: skill-creator
+description: Create modular SKILL.md packages with crisp triggers, references, and deterministic scripts.
+---
+
+1. Define narrow trigger phrases in YAML frontmatter.
+2. Keep SKILL.md instructions concise; offload deep docs into references/.`,
+    tags: ['skill-md', 'ai-harness'],
+    isFeatured: true,
+  },
+  {
+    title: 'Superpowers Agentic Dev Workflow',
+    slug: 'superpowers-agentic-dev-workflow',
+    harness: 'Claude Code / Cursor / Codex',
+    category: 'Software Workflow',
+    description: 'Battle-tested planning, TDD red-green-refactor, subagent dispatch, and systematic debugging skills.',
+    repoUrl: 'https://github.com/obra/superpowers',
+    docsUrl: 'https://github.com/obra/superpowers#readme',
+    installCommand: 'npx skills add obra/superpowers',
+    skillMdContent: `---
+name: systematic-debugging
+description: Reproduce failure, trace root cause across boundaries, write failing regression test first.
+---
+
+1. Capture exact stack trace and environment inputs.
+2. Isolate single minimal fix and verify full suite before claiming green.`,
+    tags: ['testing', 'skill-md', 'ai-harness'],
+    isFeatured: true,
+  },
+  {
+    title: 'Vercel Labs Agent Skills',
+    slug: 'vercel-labs-agent-skills',
+    harness: 'Universal SKILL.md',
+    category: 'Frontend & Web',
+    description: 'Production React, Next.js composition, and web performance optimization skills via the skills CLI.',
+    repoUrl: 'https://github.com/vercel-labs/agent-skills',
+    docsUrl: 'https://skills.sh',
+    installCommand: 'npx skills add vercel-labs/agent-skills',
+    skillMdContent: `---
+name: react-best-practices
+description: Eliminate request waterfalls, minimize client bundle hydration, and optimize Suspense boundaries.
+---
+
+1. Parallelize independent fetches with Promise.all.
+2. Keep client-only hooks isolated to leaf interactive boundaries.`,
+    tags: ['react', 'typescript', 'skill-md'],
+    isFeatured: true,
+  },
+  {
+    title: 'Model Context Protocol Reference Servers',
+    slug: 'mcp-reference-servers',
+    harness: 'MCP Harness',
+    category: 'MCP Plugins',
+    description: 'Official MCP plugins giving AI harnesses structured filesystem, Git, PostgreSQL, and fetch tools.',
+    repoUrl: 'https://github.com/modelcontextprotocol/servers',
+    docsUrl: 'https://modelcontextprotocol.io',
+    installCommand: 'npx -y @modelcontextprotocol/server-filesystem .',
+    skillMdContent: `---
+name: mcp-tool-routing
+description: Prefer scoped read/search MCP tools before falling back to unstructured shell globs.
+---
+
+1. Inspect server schema metadata before calling lazy MCP tools.
+2. Validate write boundaries against active workspace roots.`,
+    tags: ['ai-harness', 'api-design'],
+    isFeatured: true,
+  },
+  {
+    title: 'Playwright Browser Automation MCP',
+    slug: 'playwright-browser-mcp',
+    harness: 'MCP / Browser',
+    category: 'Testing & Browser QA',
+    description: 'Enables AI agents to navigate, snapshot accessibility trees, and verify responsive web apps cleanly.',
+    repoUrl: 'https://github.com/microsoft/playwright-mcp',
+    docsUrl: 'https://github.com/microsoft/playwright-mcp#readme',
+    installCommand: 'npx @playwright/mcp@latest',
+    skillMdContent: `---
+name: browser-verification
+description: Verify rendered pages across desktop and mobile viewports using structured accessibility snapshots.
+---
+
+1. Assert zero console errors and zero failed network responses.
+2. Verify horizontal overflow and keyboard focus visibility at 390px and 1440px.`,
+    tags: ['testing', 'ai-harness'],
+    isFeatured: true,
+  },
+  {
+    title: 'Context7 Live Library Docs Plugin',
+    slug: 'context7-live-docs-plugin',
+    harness: 'MCP / Cursor / Claude',
+    category: 'Documentation Retrieval',
+    description: 'Injects up-to-date, version-specific framework documentation directly into your AI harness context.',
+    repoUrl: 'https://github.com/upstash/context7',
+    docsUrl: 'https://context7.com',
+    installCommand: 'npx -y @upstash/context7-mcp',
+    skillMdContent: `---
+name: source-driven-docs
+description: Resolve exact library IDs and query official documentation before writing version-sensitive APIs.
+---
+
+1. Resolve target package via resolve-library-id.
+2. Ground implementation details strictly against retrieved official signatures.`,
+    tags: ['typescript', 'ai-harness'],
+    isFeatured: false,
   },
 ];
 
@@ -478,6 +680,42 @@ export async function seedDatabase(dbArg?: DbClient): Promise<void> {
         );
       }
     }
+  }
+
+  const adminId = userIdByEmail.get('admin@prompthub.dev') ?? null;
+  for (const skill of SEED_CURATED_SKILLS) {
+    await db.query(
+      `INSERT INTO curated_skills (
+         title, slug, harness, category, description, repo_url, docs_url,
+         install_command, skill_md_content, tags, is_featured, created_by
+       )
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+       ON CONFLICT (slug) DO UPDATE SET
+         title = EXCLUDED.title,
+         harness = EXCLUDED.harness,
+         category = EXCLUDED.category,
+         description = EXCLUDED.description,
+         repo_url = EXCLUDED.repo_url,
+         docs_url = EXCLUDED.docs_url,
+         install_command = EXCLUDED.install_command,
+         skill_md_content = EXCLUDED.skill_md_content,
+         tags = EXCLUDED.tags,
+         is_featured = EXCLUDED.is_featured`,
+      [
+        skill.title,
+        skill.slug,
+        skill.harness,
+        skill.category,
+        skill.description,
+        skill.repoUrl,
+        skill.docsUrl,
+        skill.installCommand,
+        skill.skillMdContent,
+        skill.tags.join(','),
+        skill.isFeatured,
+        adminId,
+      ],
+    );
   }
 
   const dabId = userIdByEmail.get('dab@prompthub.dev');
