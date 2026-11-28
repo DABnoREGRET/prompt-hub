@@ -18,6 +18,7 @@ import {
   fetchEntryById,
   removeBookmarkApi,
 } from '../api/entries.api';
+import { AiAssistantPanel } from '../components/entries/AiAssistantPanel';
 import { PromptPlayground } from '../components/entries/PromptPlayground';
 import { EmptyState, ErrorState, LoadingSkeleton } from '../components/ui/StatusState';
 import { useAuth } from '../context/AuthContext';
@@ -322,6 +323,25 @@ export function EntryDetailPage() {
               <code>{entry.content}</code>
             </pre>
           </section>
+
+          {isAuthenticated ? (
+            <AiAssistantPanel
+              entryType={entry.entryType}
+              language={entry.language}
+              title={entry.title}
+              content={entry.content}
+            />
+          ) : (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600">
+              <span>Sign in to use the AI Vault Assistant (Explain, Improve, Suggest Tags).</span>
+              <Link
+                to="/login"
+                className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
+              >
+                Sign in
+              </Link>
+            </div>
+          )}
         </article>
       ) : null}
 
