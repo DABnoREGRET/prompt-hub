@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const analyzeAiSchema = z.object({
   mode: z.enum(['explain', 'improve', 'suggest-tags']),
-  entryType: z.enum(['SNIPPET', 'PROMPT']),
+  entryType: z.enum(['SNIPPET', 'PROMPT', 'SKILL']),
   language: z
     .string()
     .trim()

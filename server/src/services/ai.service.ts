@@ -19,13 +19,14 @@ const KEYWORD_TAG_RULES: Array<[RegExp, string]> = [
   [/\bselect\b|\binsert\b|\bpostgres\b|\bpostgresql\b|\bpg\b/i, 'postgres'],
   [/\bjwt\b|\bbcrypt\b|\bauth\b|\bowasp\b|\bsecurity\b/i, 'security'],
   [/\bdocker\b|\bfrom\s+node\b/i, 'docker'],
-  [/\bvitest\b|\bjest\b|\bsupertest\b|\btest\b/i, 'testing'],
+  [/\bvitest\b|\bjest\b|\bsupertest\b|\btest\b|\btdd\b/i, 'testing'],
   [/\btailwind\b|\bcss\b/i, 'tailwind'],
   [/\basync\b|\bfetch\b|\bpromise\b/i, 'async'],
   [/\bgithub\b|\bci\b|\bworkflow\b/i, 'ci-cd'],
   [/\breview\b|\baudit\b|\brefactor\b/i, 'code-review'],
   [/\bincident\b|\bpostmortem\b/i, 'incident'],
   [/\bsql\b|\bquery\b|\bindex\b/i, 'sql'],
+  [/skill\.md|\bfrontmatter\b|\bharness\b|\bmcp\b/i, 'ai-harness'],
 ];
 
 export function extractTemplateVariables(content: string): string[] {
@@ -47,7 +48,11 @@ function buildSuggestedTags(input: AnalyzeAiInput, detectedVariables: string[]):
   if (input.language && input.language !== 'plaintext') {
     raw.push(input.language);
   }
-  raw.push(input.entryType === 'PROMPT' ? 'ai-prompt' : 'code-snippet');
+  if (input.entryType === 'SKILL') {
+    raw.push('skill-md', 'ai-harness');
+  } else {
+    raw.push(input.entryType === 'PROMPT' ? 'ai-prompt' : 'code-snippet');
+  }
   if (detectedVariables.length > 0) {
     raw.push('template');
   }
@@ -67,6 +72,20 @@ function buildImprovedContent(
   detectedVariables: string[],
 ): string {
   const trimmed = input.content.trim();
+  if (input.entryType === 'SKILL') {
+    const hasFrontmatter = /^---\s*[\r\n]/.test(trimmed);
+    if (!hasFrontmatter) {
+      const slugName = (input.title || 'custom-skill')
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      return `---\nname: ${slugName || 'custom-skill'}\ndescription: Trigger this skill when ${slugName.replace(/-/g, ' ')} is needed.\n---\n\n${trimmed}\n\n## Verification\n- Confirm expected output and run workspace tests before completing.`;
+    }
+    return trimmed.includes('Verification')
+      ? trimmed
+      : `${trimmed}\n\n## Verification\n- Confirm expected output and run workspace checks before reporting completion.`;
+  }
+
   if (input.entryType === 'PROMPT') {
     const varLine =
       detectedVariables.length > 0
@@ -104,7 +123,16 @@ export function analyzeHeuristically(input: AnalyzeAiInput): AiAnalysisResult {
   const lineCount = input.content.split(/\r?\n/).length;
 
   const suggestions: string[] = [];
-  if (input.entryType === 'PROMPT') {
+  if (input.entryType === 'SKILL') {
+    if (!/^---\s*[\r\n][\s\S]*?\bname:/i.test(input.content)) {
+      suggestions.push('Include YAML frontmatter with `name:` and `description:` so AI harnesses auto-discover the SKILL.md trigger.');
+    } else {
+      suggestions.push('Valid SKILL.md YAML frontmatter detected for portable Claude Code / Codex / Cursor discovery.');
+    }
+    if (!/verify|check|test|guard|rule/i.test(input.content)) {
+      suggestions.push('Add explicit verification steps or guardrails at the bottom of the SKILL.md file.');
+    }
+  } else if (input.entryType === 'PROMPT') {
     if (detectedVariables.length === 0) {
       suggestions.push(
         'Consider parameterizing repeatable inputs with {{variable}} placeholders for the Prompt Playground.',
@@ -134,13 +162,15 @@ export function analyzeHeuristically(input: AnalyzeAiInput): AiAnalysisResult {
     suggestions.push(`Recommended discovery tags: ${suggestedTags.map((t) => `#${t}`).join(', ')}.`);
   }
 
-  const label = input.title ? `"${input.title}"` : `this ${input.language} ${input.entryType.toLowerCase()}`;
+  const kindLabel =
+    input.entryType === 'SKILL' ? 'SKILL.md agent skill' : input.entryType.toLowerCase();
+  const label = input.title ? `"${input.title}"` : `this ${input.language} ${kindLabel}`;
   const summary =
     input.mode === 'suggest-tags'
       ? `Analyzed ${label} across ${lineCount} line(s) and extracted ${suggestedTags.length} discovery tag(s).`
       : input.mode === 'improve'
         ? `Generated a structured refinement for ${label} (${lineCount} line(s), ${detectedVariables.length} template var(s)).`
-        : `${label} is a ${lineCount}-line ${input.language} ${input.entryType.toLowerCase()}${
+        : `${label} is a ${lineCount}-line ${input.language} ${kindLabel}${
             detectedVariables.length > 0
               ? ` using placeholders (${detectedVariables.join(', ')})`
               : ''
@@ -161,7 +191,7 @@ export function analyzeHeuristically(input: AnalyzeAiInput): AiAnalysisResult {
 
 function buildGeminiPrompt(input: AnalyzeAiInput): string {
   return [
-    'You are an assistant inside Prompt Hub, a developer snippet and AI prompt vault.',
+    'You are an assistant inside Prompt Hub, a developer snippet, AI prompt, and SKILL.md vault.',
     `Task mode: ${input.mode}. Entry type: ${input.entryType}. Language: ${input.language}.`,
     input.title ? `Title: ${input.title}` : '',
     'Respond ONLY with strict JSON matching this shape:',

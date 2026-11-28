@@ -48,11 +48,15 @@ describe('Backend & Database Foundation', () => {
     const categories = await db.query<{ count: string }>('SELECT COUNT(*)::text AS count FROM categories');
     const tags = await db.query<{ count: string }>('SELECT COUNT(*)::text AS count FROM tags');
     const entries = await db.query<{ count: string }>('SELECT COUNT(*)::text AS count FROM entries');
+    const curatedSkills = await db.query<{ count: string }>(
+      'SELECT COUNT(*)::text AS count FROM curated_skills',
+    );
 
     expect(Number(users.rows[0].count)).toBe(4);
-    expect(Number(categories.rows[0].count)).toBe(6);
-    expect(Number(tags.rows[0].count)).toBe(12);
-    expect(Number(entries.rows[0].count)).toBe(16);
+    expect(Number(categories.rows[0].count)).toBe(7);
+    expect(Number(tags.rows[0].count)).toBe(14);
+    expect(Number(entries.rows[0].count)).toBe(19);
+    expect(Number(curatedSkills.rows[0].count)).toBe(6);
 
     const sonUser = await db.query<{ password_hash: string }>(
       'SELECT password_hash FROM users WHERE email = $1',

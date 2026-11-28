@@ -3,6 +3,7 @@ import aiRoutes from './ai.routes.js';
 import authRoutes from './auth.routes.js';
 import bookmarksRoutes from './bookmarks.routes.js';
 import categoriesRoutes from './categories.routes.js';
+import curatedSkillsRoutes from './curatedSkills.routes.js';
 import entriesRoutes from './entries.routes.js';
 import healthRoutes from './health.routes.js';
 import tagsRoutes from './tags.routes.js';
@@ -16,5 +17,6 @@ apiRouter.use('/tags', tagsRoutes);
 apiRouter.use('/entries', entriesRoutes);
 apiRouter.use('/bookmarks', bookmarksRoutes);
 apiRouter.use('/ai', aiRoutes);
+apiRouter.use('/curated-skills', curatedSkillsRoutes);
 
 export default apiRouter;

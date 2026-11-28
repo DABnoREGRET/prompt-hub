@@ -1,7 +1,7 @@
 import { DbClient, getDb, QueryResultRow } from '../db/client.js';
 import type { ListEntriesQuery } from '../validators/entry.schema.js';
 
-export type EntryType = 'SNIPPET' | 'PROMPT';
+export type EntryType = 'SNIPPET' | 'PROMPT' | 'SKILL';
 export type EntryVisibility = 'PUBLIC' | 'PRIVATE';
 
 export interface EntryItem {
