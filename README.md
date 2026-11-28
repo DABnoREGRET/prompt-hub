@@ -1,15 +1,14 @@
-# Prompt Hub — Code Snippet & AI Prompt Vault
+# Prompt Hub — Code Snippets, AI Prompts & `SKILL.md` Vault
 
-A collaborative developer vault to store, categorize, search, test, and share reusable code snippets and parameterized `{{variable}}` AI prompts.
+A collaborative developer vault to store, categorize, search, test, and share reusable code snippets (`SNIPPET`), parameterized `{{variable}}` AI prompts (`PROMPT`), copy-paste `SKILL.md` agent workflows (`SKILL`), and curated plugins for AI coding harnesses.
 
 ## Features
 
-- **Role-Based Access Control**: Supports `GUEST` (public explore + prompt playground), `USER` (create/edit/delete own entries, private vault, bookmarks, AI assistant), and `ADMIN` (category management, content moderation, user status controls).
-- **Authentication & Security**: Registration, login, logout, and session persistence using `bcryptjs` password hashing, JWT Bearer authentication, Zod request validation, `helmet` security headers, and rate limiting.
-- **Full CRUD & Discovery**: Create, inspect, update, and delete code snippets (`SNIPPET`) and AI prompts (`PROMPT`) with keyword search, category/type/language/tag filters, sorting (`newest`, `popular`, `title`), and pagination.
-- **Interactive Prompt Playground**: Automatically detects `{{variable}}` placeholders in AI prompts and renders live input fields to preview and copy populated prompts.
-- **AI Snippet & Prompt Assistant**: Generates explanations, prompt refinements, and tag suggestions via Google Gemini API (with a built-in deterministic local analyzer fallback when no API key is set).
-- **Resilient UI States**: Explicit loading skeletons, actionable empty states, error retry banners, toast notifications, and mobile-first responsive layout.
+- **Dark & Light Studio Themes**: Built with dual evening dark (`#0f1f10` + `#c6f19d` accent) and crisp light studio grades powered by `Funnel Display`, `Funnel Sans`, and `DM Mono` with persisted preference.
+- **Role-Based Access Control**: Supports `GUEST` (public explore, prompt playground, and curated skills directory), `USER` (create/edit/delete own entries, `SKILL.md` workflows, private vault, bookmarks, AI assistant), and `ADMIN` (curated AI harness skills registry management, category CRUD, moderation).
+- **`SKILL.md` Vault & One-Click Copy/Download**: Author YAML-frontmatter `SKILL.md` files using a built-in template inserter and copy or download `SKILL.md` directly into Claude Code, Codex, Cursor, or OpenHands workspaces.
+- **Curated AI Harness Skills Directory (`/skills`)**: Public catalog maintained by Admins via `/admin` featuring popular MCP plugins and agent skill repositories, CLI install commands, documentation links, and `SKILL.md` starters.
+- **Interactive Prompt Playground & AI Vault Assistant**: Live `{{variable}}` substitution preview plus `/api/ai/analyze` (`explain`, `improve`, `suggest-tags`) with Google Gemini integration and deterministic heuristic fallback.
 
 ## Tech Stack
 
@@ -58,7 +57,7 @@ npm run db:seed
 npm run dev
 ```
 - Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:4000/api` (`GET /api/health`)
+- Backend API: `http://localhost:4000/api` (`GET /api/health`, `GET /api/curated-skills`)
 
 ## Available Commands
 
@@ -66,7 +65,7 @@ npm run dev
 |---|---|
 | `npm run dev` | Run client and server concurrently in watch mode |
 | `npm run db:migrate` | Apply PostgreSQL schema migrations |
-| `npm run db:seed` | Seed demo users, categories, tags, entries, and bookmarks |
+| `npm run db:seed` | Seed demo users, categories, tags, entries, and curated harness skills |
 | `npm test` | Run backend integration tests and frontend component tests |
 | `npm run lint` | Lint client and server codebases |
 | `npm run typecheck` | Run TypeScript type checking across workspaces |
@@ -86,5 +85,5 @@ npm run dev
 | Member | GitHub | Role & Owned Modules |
 |---|---|---|
 | **Dabber** | `@DABnoREGRET` | Project Manager & Tech Lead — DB foundation, Entries CRUD & search API, Detail/Prompt Playground & Editor, AI Assistant, CI/CD & Cloud Deployment |
-| **Son Pham** | `@SonPham15` | Backend Engineer — Authentication (`bcryptjs` + JWT), RBAC middleware, Categories & Tags API, Admin moderation API & security hardening |
-| **Nguyễn Phan Anh** | `@phanh1475` | Frontend Engineer — React/Tailwind app shell, AuthContext & Login/Register UI, Explore search/filter/sort UI, Bookmarks & Admin Dashboard UI |
+| **Son Pham** | `@SonPham15` | Backend Engineer — Authentication (`bcryptjs` + JWT), RBAC middleware, Categories/Tags & Curated Skills API, Admin moderation API & security hardening |
+| **Nguyễn Phan Anh** | `@phanh1475` | Frontend Engineer — React/Tailwind app shell, Dark Mode studio UI overhaul, `SKILL.md` UX, Curated Skills Directory & Admin Curator UI |
