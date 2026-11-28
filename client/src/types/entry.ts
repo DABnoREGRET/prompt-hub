@@ -1,4 +1,4 @@
-export type EntryType = 'SNIPPET' | 'PROMPT';
+export type EntryType = 'SNIPPET' | 'PROMPT' | 'SKILL';
 export type EntryVisibility = 'PUBLIC' | 'PRIVATE';
 export type EntrySortBy = 'newest' | 'popular' | 'title';
 

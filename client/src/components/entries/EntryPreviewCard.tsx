@@ -1,4 +1,12 @@
-import { Bookmark, Check, Copy, Lock, Sparkles, Terminal } from 'lucide-react';
+import {
+  Bookmark,
+  Check,
+  Copy,
+  FileCode2,
+  Lock,
+  Sparkles,
+  Terminal,
+} from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { addBookmarkApi, removeBookmarkApi } from '../../api/entries.api';
@@ -42,7 +50,7 @@ export function EntryPreviewCard({
   }, [entry.id, entry.isBookmarked, entry.bookmarkCount]);
 
   const variableCount = useMemo(
-    () => (entry.entryType === 'PROMPT' ? countTemplateVariables(entry.content) : 0),
+    () => (entry.entryType !== 'SNIPPET' ? countTemplateVariables(entry.content) : 0),
     [entry.entryType, entry.content],
   );
 
@@ -50,6 +58,12 @@ export function EntryPreviewCard({
     try {
       await navigator.clipboard?.writeText(entry.content);
       setCopied(true);
+      showToast(
+        entry.entryType === 'SKILL'
+          ? `Copied ${entry.title} SKILL.md`
+          : `Copied ${entry.title}`,
+        'success',
+      );
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
       // Clipboard API may be unavailable in restricted contexts
@@ -84,36 +98,41 @@ export function EntryPreviewCard({
     }
   };
 
+  const badgeClass =
+    entry.entryType === 'PROMPT'
+      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+      : entry.entryType === 'SKILL'
+        ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30'
+        : 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/30';
+
   return (
-    <article className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 transition-colors hover:border-slate-300">
+    <article className="card-interactive flex flex-col justify-between rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] p-5">
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
             <span
-              className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold ${
-                entry.entryType === 'PROMPT'
-                  ? 'bg-emerald-50 text-emerald-700'
-                  : 'bg-sky-50 text-sky-700'
-              }`}
+              className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-xs font-medium ${badgeClass}`}
             >
               {entry.entryType === 'PROMPT' ? (
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
+              ) : entry.entryType === 'SKILL' ? (
+                <FileCode2 className="h-3 w-3" aria-hidden="true" />
               ) : (
                 <Terminal className="h-3 w-3" aria-hidden="true" />
               )}
               {entry.entryType}
             </span>
-            <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700">
+            <span className="rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2 py-0.5 font-mono text-xs text-[var(--p-muted)]">
               {entry.language}
             </span>
             {entry.visibility === 'PRIVATE' ? (
-              <span className="inline-flex items-center gap-1 rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800">
+              <span className="inline-flex items-center gap-1 rounded border border-amber-500/30 bg-amber-500/15 px-2 py-0.5 font-mono text-xs font-medium text-amber-800 dark:text-amber-300">
                 <Lock className="h-3 w-3" aria-hidden="true" />
                 PRIVATE
               </span>
             ) : null}
             {variableCount > 0 ? (
-              <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+              <span className="rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2 py-0.5 font-mono text-xs text-[var(--p-ink)]">
                 {variableCount} {variableCount === 1 ? 'var' : 'vars'}
               </span>
             ) : null}
@@ -123,40 +142,42 @@ export function EntryPreviewCard({
             type="button"
             onClick={handleCopy}
             aria-label={`Copy ${entry.title}`}
-            className="inline-flex items-center gap-1 rounded border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            className="btn-tactile inline-flex items-center gap-1 rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2.5 py-1 text-xs font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
           >
             {copied ? (
               <>
-                <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
+                <Check className="h-3.5 w-3.5 text-emerald-500" aria-hidden="true" />
                 Copied
               </>
             ) : (
               <>
                 <Copy className="h-3.5 w-3.5" aria-hidden="true" />
-                Copy
+                {entry.entryType === 'SKILL' ? 'Copy SKILL.md' : 'Copy'}
               </>
             )}
           </button>
         </div>
 
-        <h3 className="mt-3 text-base font-semibold text-slate-900">
+        <h3 className="mt-3.5 font-display text-lg font-medium leading-snug text-[var(--p-ink)]">
           <Link
             to={`/entries/${entry.id}`}
-            className="hover:text-emerald-700 hover:underline focus:outline-none focus:underline"
+            className="hover:text-[var(--p-accent)] hover:underline focus:outline-none focus:underline"
           >
             {entry.title}
           </Link>
         </h3>
         {entry.description ? (
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600">{entry.description}</p>
+          <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-[var(--p-muted)]">
+            {entry.description}
+          </p>
         ) : null}
 
-        <pre className="mt-3 max-h-28 overflow-hidden rounded-md border border-slate-200 bg-slate-900 p-3 font-mono text-xs leading-relaxed text-slate-100">
+        <pre className="mt-3 max-h-28 overflow-hidden rounded border border-[var(--p-hairline)] bg-[var(--p-code-bg)] p-3 font-mono text-xs leading-relaxed text-[var(--p-code-ink)]">
           <code>{entry.content}</code>
         </pre>
       </div>
 
-      <div className="mt-4 space-y-2 border-t border-slate-100 pt-3">
+      <div className="mt-4 space-y-2.5 border-t border-[var(--p-hairline)] pt-3">
         {entry.tags.length > 0 ? (
           <div className="flex flex-wrap gap-1.5">
             {entry.tags.slice(0, 4).map((tag) =>
@@ -165,14 +186,14 @@ export function EntryPreviewCard({
                   key={tag}
                   type="button"
                   onClick={() => onTagClick(tag)}
-                  className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700 hover:bg-emerald-50 hover:text-emerald-800"
+                  className="rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2 py-0.5 font-mono text-xs text-[var(--p-muted)] hover:border-[var(--p-accent)] hover:text-[var(--p-ink)]"
                 >
                   #{tag}
                 </button>
               ) : (
                 <span
                   key={tag}
-                  className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600"
+                  className="rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2 py-0.5 font-mono text-xs text-[var(--p-muted)]"
                 >
                   #{tag}
                 </span>
@@ -181,9 +202,12 @@ export function EntryPreviewCard({
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between gap-2 text-xs text-slate-500">
+        <div className="flex items-center justify-between gap-2 text-xs text-[var(--p-muted)]">
           <span>
-            by <strong className="font-medium text-slate-700">@{entry.authorUsername}</strong>
+            by{' '}
+            <strong className="font-medium text-[var(--p-ink)]">
+              @{entry.authorUsername}
+            </strong>
             {entry.categoryName ? ` · ${entry.categoryName}` : ''}
           </span>
 
@@ -200,10 +224,10 @@ export function EntryPreviewCard({
                     ? `Remove bookmark for ${entry.title}`
                     : `Bookmark ${entry.title}`
                 }
-                className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium transition-colors ${
+                className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 font-mono text-xs font-medium transition-colors ${
                   bookmarked
-                    ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    ? 'border border-[var(--p-accent)] bg-[var(--p-accent)] text-[var(--p-accent-ink)]'
+                    : 'border border-[var(--p-hairline)] bg-[var(--p-bg)] text-[var(--p-ink)] hover:border-[var(--p-accent)]'
                 }`}
               >
                 <Bookmark
@@ -213,7 +237,7 @@ export function EntryPreviewCard({
                 {bookmarkCount}
               </button>
             ) : (
-              <span className="inline-flex items-center gap-1 text-slate-600">
+              <span className="inline-flex items-center gap-1 font-mono text-[var(--p-muted)]">
                 <Bookmark className="h-3.5 w-3.5" aria-hidden="true" />
                 {bookmarkCount}
               </span>

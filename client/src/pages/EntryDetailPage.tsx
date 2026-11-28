@@ -3,7 +3,9 @@ import {
   Bookmark,
   Check,
   Copy,
+  Download,
   Edit3,
+  FileCode2,
   Lock,
   Sparkles,
   Terminal,
@@ -77,10 +79,33 @@ export function EntryDetailPage() {
     try {
       await navigator.clipboard?.writeText(entry.content);
       setCopiedRaw(true);
-      showToast('Copied content to clipboard', 'success');
+      showToast(
+        entry.entryType === 'SKILL'
+          ? 'Copied SKILL.md to clipboard'
+          : 'Copied content to clipboard',
+        'success',
+      );
       window.setTimeout(() => setCopiedRaw(false), 1800);
     } catch {
       showToast('Clipboard access unavailable in this browser context', 'error');
+    }
+  };
+
+  const handleDownloadSkillMd = () => {
+    if (!entry) return;
+    try {
+      const blob = new Blob([entry.content], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = 'SKILL.md';
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+      showToast('Downloaded SKILL.md', 'success');
+    } catch {
+      showToast('Unable to trigger file download', 'error');
     }
   };
 
@@ -137,7 +162,7 @@ export function EntryDetailPage() {
       <div>
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--p-muted)] hover:text-[var(--p-ink)]"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to Explore
@@ -149,11 +174,11 @@ export function EntryDetailPage() {
       ) : error?.status === 404 ? (
         <EmptyState
           title="Entry not found"
-          description="The requested snippet or prompt does not exist or has been removed."
+          description="The requested snippet, prompt, or SKILL.md file does not exist or has been removed."
           action={
             <Link
               to="/"
-              className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+              className="rounded-md bg-[var(--p-accent)] px-4 py-2 text-sm font-medium text-[var(--p-accent-ink)]"
             >
               Back to Explore
             </Link>
@@ -166,29 +191,33 @@ export function EntryDetailPage() {
         />
       ) : entry ? (
         <article className="space-y-6">
-          <header className="rounded-xl border border-slate-200 bg-white p-6">
+          <header className="rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] p-6">
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <span
-                    className={`inline-flex items-center gap-1 rounded px-2.5 py-0.5 text-xs font-semibold ${
+                    className={`inline-flex items-center gap-1 rounded px-2.5 py-0.5 font-mono text-xs font-medium ${
                       entry.entryType === 'PROMPT'
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'bg-sky-50 text-sky-700'
+                        ? 'border border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                        : entry.entryType === 'SKILL'
+                          ? 'border border-amber-500/30 bg-amber-500/15 text-amber-800 dark:text-amber-300'
+                          : 'border border-sky-500/30 bg-sky-500/15 text-sky-700 dark:text-sky-300'
                     }`}
                   >
                     {entry.entryType === 'PROMPT' ? (
                       <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                    ) : entry.entryType === 'SKILL' ? (
+                      <FileCode2 className="h-3.5 w-3.5" aria-hidden="true" />
                     ) : (
                       <Terminal className="h-3.5 w-3.5" aria-hidden="true" />
                     )}
                     {entry.entryType}
                   </span>
-                  <span className="rounded bg-slate-100 px-2.5 py-0.5 font-mono text-xs text-slate-700">
+                  <span className="rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2.5 py-0.5 font-mono text-xs text-[var(--p-muted)]">
                     {entry.language}
                   </span>
                   {entry.visibility === 'PRIVATE' ? (
-                    <span className="inline-flex items-center gap-1 rounded bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                    <span className="inline-flex items-center gap-1 rounded border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 font-mono text-xs font-medium text-amber-800 dark:text-amber-300">
                       <Lock className="h-3.5 w-3.5" aria-hidden="true" />
                       PRIVATE
                     </span>
@@ -196,26 +225,26 @@ export function EntryDetailPage() {
                   {entry.categoryName && entry.categorySlug ? (
                     <Link
                       to={`/?category=${encodeURIComponent(entry.categorySlug)}`}
-                      className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-700 hover:border-emerald-300 hover:text-emerald-800"
+                      className="rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
                     >
                       {entry.categoryName}
                     </Link>
                   ) : null}
                 </div>
 
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                <h1 className="font-display text-2xl font-normal tracking-tight text-[var(--p-ink)] sm:text-3xl">
                   {entry.title}
                 </h1>
                 {entry.description ? (
-                  <p className="max-w-3xl text-sm leading-relaxed text-slate-600">
+                  <p className="max-w-3xl text-sm leading-relaxed text-[var(--p-muted)]">
                     {entry.description}
                   </p>
                 ) : null}
 
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--p-muted)]">
                   <span>
                     Authored by{' '}
-                    <strong className="font-medium text-slate-800">
+                    <strong className="font-medium text-[var(--p-ink)]">
                       @{entry.authorUsername}
                     </strong>
                   </span>
@@ -235,7 +264,7 @@ export function EntryDetailPage() {
                       <Link
                         key={tag}
                         to={`/?tag=${encodeURIComponent(tag)}`}
-                        className="rounded bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700 hover:bg-emerald-50 hover:text-emerald-800"
+                        className="rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2.5 py-0.5 font-mono text-xs text-[var(--p-muted)] hover:border-[var(--p-accent)] hover:text-[var(--p-ink)]"
                       >
                         #{tag}
                       </Link>
@@ -248,20 +277,31 @@ export function EntryDetailPage() {
                 <button
                   type="button"
                   onClick={handleCopyRaw}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="btn-tactile inline-flex items-center gap-1.5 rounded-md bg-[var(--p-accent)] px-3.5 py-2 text-sm font-medium text-[var(--p-accent-ink)]"
                 >
                   {copiedRaw ? (
                     <>
-                      <Check className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                      <Check className="h-4 w-4" aria-hidden="true" />
                       Copied
                     </>
                   ) : (
                     <>
                       <Copy className="h-4 w-4" aria-hidden="true" />
-                      Copy Content
+                      {entry.entryType === 'SKILL' ? 'Copy SKILL.md' : 'Copy Content'}
                     </>
                   )}
                 </button>
+
+                {entry.entryType === 'SKILL' ? (
+                  <button
+                    type="button"
+                    onClick={handleDownloadSkillMd}
+                    className="btn-tactile inline-flex items-center gap-1.5 rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 py-2 text-sm font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
+                  >
+                    <Download className="h-4 w-4" aria-hidden="true" />
+                    Download SKILL.md
+                  </button>
+                ) : null}
 
                 {isAuthenticated ? (
                   <button
@@ -269,10 +309,10 @@ export function EntryDetailPage() {
                     onClick={handleBookmarkToggle}
                     disabled={bookmarkBusy}
                     aria-pressed={Boolean(entry.isBookmarked)}
-                    className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
+                    className={`btn-tactile inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
                       entry.isBookmarked
-                        ? 'border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
-                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                        ? 'border-[var(--p-accent)] bg-[var(--p-accent)] text-[var(--p-accent-ink)]'
+                        : 'border-[var(--p-hairline)] bg-[var(--p-bg)] text-[var(--p-ink)] hover:border-[var(--p-accent)]'
                     }`}
                   >
                     <Bookmark
@@ -282,7 +322,7 @@ export function EntryDetailPage() {
                     {entry.bookmarkCount}
                   </button>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600">
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 py-2 font-mono text-sm text-[var(--p-muted)]">
                     <Bookmark className="h-4 w-4" aria-hidden="true" />
                     {entry.bookmarkCount}
                   </span>
@@ -292,7 +332,7 @@ export function EntryDetailPage() {
                   <>
                     <Link
                       to={`/entries/${entry.id}/edit`}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                      className="btn-tactile inline-flex items-center gap-1.5 rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 py-2 text-sm font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
                     >
                       <Edit3 className="h-4 w-4" aria-hidden="true" />
                       Edit
@@ -300,7 +340,7 @@ export function EntryDetailPage() {
                     <button
                       type="button"
                       onClick={() => setConfirmDeleteOpen(true)}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-rose-300 bg-rose-50 px-3 py-1.5 text-sm font-medium text-rose-700 hover:bg-rose-100"
+                      className="btn-tactile inline-flex items-center gap-1.5 rounded-md border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-500 hover:bg-rose-500/20 dark:text-rose-300"
                     >
                       <Trash2 className="h-4 w-4" aria-hidden="true" />
                       Delete
@@ -315,11 +355,15 @@ export function EntryDetailPage() {
             <PromptPlayground content={entry.content} />
           ) : null}
 
-          <section className="rounded-xl border border-slate-200 bg-white p-5">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600">
-              {entry.entryType === 'PROMPT' ? 'Raw Prompt Template' : 'Source Code'}
+          <section className="rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] p-5">
+            <h2 className="mb-3 font-mono text-xs font-medium uppercase tracking-wide text-[var(--p-muted)]">
+              {entry.entryType === 'SKILL'
+                ? 'SKILL.md Portable Definition (YAML + Workflow)'
+                : entry.entryType === 'PROMPT'
+                  ? 'Raw Prompt Template'
+                  : 'Source Code'}
             </h2>
-            <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-slate-900 p-4 font-mono text-xs leading-relaxed text-slate-100 sm:text-sm">
+            <pre className="overflow-x-auto whitespace-pre-wrap rounded border border-[var(--p-hairline)] bg-[var(--p-code-bg)] p-4 font-mono text-xs leading-relaxed text-[var(--p-code-ink)] sm:text-sm">
               <code>{entry.content}</code>
             </pre>
           </section>
@@ -332,11 +376,13 @@ export function EntryDetailPage() {
               content={entry.content}
             />
           ) : (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600">
-              <span>Sign in to use the AI Vault Assistant (Explain, Improve, Suggest Tags).</span>
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] px-5 py-4 text-sm text-[var(--p-muted)]">
+              <span>
+                Sign in to use the AI Vault Assistant (Explain, Improve, Suggest Tags).
+              </span>
               <Link
                 to="/login"
-                className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
+                className="btn-tactile rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 py-1.5 text-xs font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
               >
                 Sign in
               </Link>
@@ -350,18 +396,18 @@ export function EntryDetailPage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-entry-dialog-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
         >
-          <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-lg">
+          <div className="w-full max-w-md rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] p-6 shadow-xl">
             <h2
               id="delete-entry-dialog-title"
-              className="text-lg font-semibold text-slate-900"
+              className="font-display text-lg font-medium text-[var(--p-ink)]"
             >
               Delete Entry
             </h2>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-[var(--p-muted)]">
               Are you sure you want to permanently delete{' '}
-              <strong className="font-medium text-slate-900">{entry.title}</strong>?
+              <strong className="font-medium text-[var(--p-ink)]">{entry.title}</strong>?
               This removes associated bookmarks and tag links.
             </p>
             <div className="mt-5 flex justify-end gap-2">
@@ -369,7 +415,7 @@ export function EntryDetailPage() {
                 type="button"
                 disabled={deleting}
                 onClick={() => setConfirmDeleteOpen(false)}
-                className="rounded-md border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3.5 py-2 text-sm font-medium text-[var(--p-ink)]"
               >
                 Cancel
               </button>
