@@ -4,6 +4,8 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { EmptyState } from './components/ui/StatusState';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { EntryDetailPage } from './pages/EntryDetailPage';
+import { EntryFormPage } from './pages/EntryFormPage';
 import { ExploreShellPage } from './pages/ExploreShellPage';
 import { LoginPage } from './pages/LoginPage';
 import { MyVaultPage } from './pages/MyVaultPage';
@@ -17,6 +19,7 @@ export function AppRoutes() {
         <Route path="/" element={<ExploreShellPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/entries/:id" element={<EntryDetailPage />} />
         <Route
           path="/vault"
           element={
@@ -40,10 +43,15 @@ export function AppRoutes() {
           path="/new"
           element={
             <ProtectedRoute>
-              <EmptyState
-                title="New Entry"
-                description="Snippet and prompt creation form is scheduled for the entries milestone."
-              />
+              <EntryFormPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/entries/:id/edit"
+          element={
+            <ProtectedRoute>
+              <EntryFormPage />
             </ProtectedRoute>
           }
         />
