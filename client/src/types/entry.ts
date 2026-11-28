@@ -1,5 +1,6 @@
 export type EntryType = 'SNIPPET' | 'PROMPT';
 export type EntryVisibility = 'PUBLIC' | 'PRIVATE';
+export type EntrySortBy = 'newest' | 'popular' | 'title';
 
 export interface CategoryItem {
   id: number;
@@ -29,6 +30,7 @@ export interface EntrySummary {
   categorySlug: string | null;
   tags: string[];
   bookmarkCount: number;
+  isBookmarked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -41,4 +43,33 @@ export interface PaginatedEntriesResponse {
     total: number;
     totalPages: number;
   };
+}
+
+export interface EntriesQueryParams {
+  q?: string;
+  type?: EntryType;
+  category?: string;
+  language?: string;
+  tag?: string;
+  sortBy?: EntrySortBy;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface CreateEntryPayload {
+  title: string;
+  entryType: EntryType;
+  language: string;
+  categoryId: number | null;
+  description: string;
+  content: string;
+  visibility: EntryVisibility;
+  tags: string[];
+}
+
+export type UpdateEntryPayload = Partial<CreateEntryPayload>;
+
+export interface BookmarkToggleResponse {
+  bookmarked: boolean;
+  bookmarkCount: number;
 }
