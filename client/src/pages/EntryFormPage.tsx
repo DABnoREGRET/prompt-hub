@@ -8,6 +8,7 @@ import {
   fetchEntryById,
   updateEntryApi,
 } from '../api/entries.api';
+import { AiAssistantPanel } from '../components/entries/AiAssistantPanel';
 import { extractPromptVariables } from '../components/entries/PromptPlayground';
 import { ErrorState, LoadingSkeleton } from '../components/ui/StatusState';
 import { useAuth } from '../context/AuthContext';
@@ -165,6 +166,21 @@ export function EntryFormPage() {
 
   const handleRemoveTag = (target: string) => {
     setTags((prev) => prev.filter((item) => item !== target));
+  };
+
+  const handleApplyAiTags = (suggested: string[]) => {
+    setTags((prev) => {
+      const merged = Array.from(
+        new Set([...prev, ...suggested.map(normalizeTagSlug).filter(Boolean)]),
+      ).slice(0, 8);
+      return merged;
+    });
+    showToast('Applied suggested tags', 'info');
+  };
+
+  const handleApplyAiContent = (improvedContent: string) => {
+    setContent(improvedContent);
+    showToast('Applied AI content suggestion', 'success');
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -516,6 +532,15 @@ export function EntryFormPage() {
           </button>
         </div>
       </form>
+
+      <AiAssistantPanel
+        entryType={entryType}
+        language={language}
+        title={title}
+        content={content}
+        onApplyTags={handleApplyAiTags}
+        onApplyContent={handleApplyAiContent}
+      />
     </div>
   );
 }

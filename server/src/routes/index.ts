@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import aiRoutes from './ai.routes.js';
 import authRoutes from './auth.routes.js';
 import bookmarksRoutes from './bookmarks.routes.js';
 import categoriesRoutes from './categories.routes.js';
@@ -14,5 +15,6 @@ apiRouter.use('/categories', categoriesRoutes);
 apiRouter.use('/tags', tagsRoutes);
 apiRouter.use('/entries', entriesRoutes);
 apiRouter.use('/bookmarks', bookmarksRoutes);
+apiRouter.use('/ai', aiRoutes);
 
 export default apiRouter;
