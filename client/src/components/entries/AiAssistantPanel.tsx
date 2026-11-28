@@ -29,7 +29,7 @@ export function AiAssistantPanel({
   const runAnalysis = async (mode: AiAnalyzeMode) => {
     const trimmed = content.trim();
     if (trimmed.length < 10) {
-      setError('Enter at least 10 characters of code or prompt text to run AI analysis.');
+      setError('Enter at least 10 characters of code, prompt, or SKILL.md text to run AI analysis.');
       return;
     }
 
@@ -58,19 +58,19 @@ export function AiAssistantPanel({
   return (
     <section
       aria-label="AI Snippet and Prompt Assistant"
-      className="space-y-4 rounded-xl border border-slate-200 bg-white p-5"
+      className="space-y-4 rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] p-5"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-white">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded bg-[var(--p-accent)] text-[var(--p-accent-ink)]">
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
           <div>
-            <h2 className="text-sm font-semibold text-slate-900">
+            <h2 className="font-display text-sm font-medium text-[var(--p-ink)]">
               AI Vault Assistant
             </h2>
-            <p className="text-xs text-slate-600">
-              Explain logic, suggest improvements, or extract discovery tags.
+            <p className="text-xs text-[var(--p-muted)]">
+              Explain logic, refine prompts or SKILL.md workflows, and extract tags.
             </p>
           </div>
         </div>
@@ -80,7 +80,7 @@ export function AiAssistantPanel({
             type="button"
             disabled={loadingMode !== null}
             onClick={() => void runAnalysis('explain')}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+            className="btn-tactile inline-flex items-center gap-1 rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2.5 py-1.5 text-xs font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)] disabled:opacity-60"
           >
             {loadingMode === 'explain' ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
@@ -94,7 +94,7 @@ export function AiAssistantPanel({
             type="button"
             disabled={loadingMode !== null}
             onClick={() => void runAnalysis('improve')}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+            className="btn-tactile inline-flex items-center gap-1 rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2.5 py-1.5 text-xs font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)] disabled:opacity-60"
           >
             {loadingMode === 'improve' ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
@@ -108,7 +108,7 @@ export function AiAssistantPanel({
             type="button"
             disabled={loadingMode !== null}
             onClick={() => void runAnalysis('suggest-tags')}
-            className="inline-flex items-center gap-1 rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+            className="btn-tactile inline-flex items-center gap-1 rounded bg-[var(--p-accent)] px-2.5 py-1.5 text-xs font-medium text-[var(--p-accent-ink)] disabled:opacity-60"
           >
             {loadingMode === 'suggest-tags' ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
@@ -123,27 +123,27 @@ export function AiAssistantPanel({
       {error ? (
         <div
           role="alert"
-          className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800"
+          className="rounded border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-500 dark:text-rose-300"
         >
           {error}
         </div>
       ) : null}
 
       {result ? (
-        <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <div className="space-y-3 rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+            <span className="font-mono text-xs font-medium uppercase tracking-wide text-[var(--p-muted)]">
               Analysis ({result.mode})
             </span>
-            <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+            <span className="rounded border border-[var(--p-hairline)] bg-[var(--p-surface)] px-2 py-0.5 font-mono text-xs text-[var(--p-ink)]">
               {result.source === 'gemini' ? 'Gemini AI' : 'Smart Analyzer'}
             </span>
           </div>
 
-          <p className="text-sm text-slate-800">{result.summary}</p>
+          <p className="text-sm text-[var(--p-ink)]">{result.summary}</p>
 
           {result.suggestions.length > 0 ? (
-            <ul className="list-disc space-y-1 pl-5 text-xs text-slate-700">
+            <ul className="list-disc space-y-1 pl-5 text-xs text-[var(--p-muted)]">
               {result.suggestions.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -151,12 +151,12 @@ export function AiAssistantPanel({
           ) : null}
 
           {result.suggestedTags.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 pt-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--p-hairline)] pt-2.5">
               <div className="flex flex-wrap gap-1.5">
                 {result.suggestedTags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded bg-white px-2 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-slate-200"
+                    className="rounded border border-[var(--p-hairline)] bg-[var(--p-surface)] px-2 py-0.5 font-mono text-xs text-[var(--p-ink)]"
                   >
                     #{tag}
                   </span>
@@ -166,7 +166,7 @@ export function AiAssistantPanel({
                 <button
                   type="button"
                   onClick={() => onApplyTags(result.suggestedTags)}
-                  className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-emerald-700"
+                  className="btn-tactile inline-flex items-center gap-1 rounded bg-[var(--p-accent)] px-2.5 py-1 text-xs font-medium text-[var(--p-accent-ink)]"
                 >
                   <Check className="h-3.5 w-3.5" aria-hidden="true" />
                   Apply Suggested Tags
@@ -176,23 +176,23 @@ export function AiAssistantPanel({
           ) : null}
 
           {result.improvedContent ? (
-            <div className="space-y-2 border-t border-slate-200 pt-3">
+            <div className="space-y-2 border-t border-[var(--p-hairline)] pt-3">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-semibold text-slate-700">
+                <span className="text-xs font-medium text-[var(--p-ink)]">
                   Suggested Revision
                 </span>
                 {onApplyContent ? (
                   <button
                     type="button"
                     onClick={() => onApplyContent(result.improvedContent!)}
-                    className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-emerald-700"
+                    className="btn-tactile inline-flex items-center gap-1 rounded bg-[var(--p-accent)] px-2.5 py-1 text-xs font-medium text-[var(--p-accent-ink)]"
                   >
                     <Check className="h-3.5 w-3.5" aria-hidden="true" />
                     Apply Improved Content
                   </button>
                 ) : null}
               </div>
-              <pre className="max-h-48 overflow-x-auto whitespace-pre-wrap rounded-md bg-slate-900 p-3 font-mono text-xs text-slate-100">
+              <pre className="max-h-48 overflow-x-auto whitespace-pre-wrap rounded border border-[var(--p-hairline)] bg-[var(--p-code-bg)] p-3 font-mono text-xs text-[var(--p-code-ink)]">
                 <code>{result.improvedContent}</code>
               </pre>
             </div>

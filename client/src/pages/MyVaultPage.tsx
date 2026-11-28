@@ -8,7 +8,7 @@ import { EmptyState, ErrorState, LoadingSkeleton } from '../components/ui/Status
 import { useToast } from '../context/ToastContext';
 import type { EntrySummary } from '../types/entry';
 
-type VaultFilter = 'ALL' | 'PUBLIC' | 'PRIVATE' | 'SNIPPET' | 'PROMPT';
+type VaultFilter = 'ALL' | 'PUBLIC' | 'PRIVATE' | 'SNIPPET' | 'PROMPT' | 'SKILL';
 
 export function MyVaultPage() {
   const { showToast } = useToast();
@@ -47,6 +47,7 @@ export function MyVaultPage() {
       PRIVATE: entries.filter((e) => e.visibility === 'PRIVATE').length,
       SNIPPET: entries.filter((e) => e.entryType === 'SNIPPET').length,
       PROMPT: entries.filter((e) => e.entryType === 'PROMPT').length,
+      SKILL: entries.filter((e) => e.entryType === 'SKILL').length,
     }),
     [entries],
   );
@@ -61,6 +62,8 @@ export function MyVaultPage() {
         return entries.filter((e) => e.entryType === 'SNIPPET');
       case 'PROMPT':
         return entries.filter((e) => e.entryType === 'PROMPT');
+      case 'SKILL':
+        return entries.filter((e) => e.entryType === 'SKILL');
       default:
         return entries;
     }
@@ -88,14 +91,16 @@ export function MyVaultPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Vault</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Manage your public and private code snippets and AI prompt templates.
+          <h1 className="font-display text-2xl font-normal text-[var(--p-ink)] sm:text-3xl">
+            My Vault
+          </h1>
+          <p className="mt-1 text-sm text-[var(--p-muted)]">
+            Manage your public and private code snippets, AI prompt templates, and SKILL.md workflows.
           </p>
         </div>
         <Link
           to="/new"
-          className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          className="btn-tactile rounded-md bg-[var(--p-accent)] px-4 py-2 text-sm font-medium text-[var(--p-accent-ink)]"
         >
           New Entry
         </Link>
@@ -114,6 +119,7 @@ export function MyVaultPage() {
               { key: 'PRIVATE', label: `Private (${counts.PRIVATE})` },
               { key: 'SNIPPET', label: `Snippets (${counts.SNIPPET})` },
               { key: 'PROMPT', label: `Prompts (${counts.PROMPT})` },
+              { key: 'SKILL', label: `Skills (${counts.SKILL})` },
             ] as const
           ).map((tab) => {
             const active = activeFilter === tab.key;
@@ -123,10 +129,10 @@ export function MyVaultPage() {
                 type="button"
                 aria-pressed={active}
                 onClick={() => setActiveFilter(tab.key)}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
                   active
-                    ? 'border-emerald-600 bg-emerald-600 text-white'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    ? 'border-[var(--p-accent)] bg-[var(--p-accent)] text-[var(--p-accent-ink)]'
+                    : 'border-[var(--p-hairline)] bg-[var(--p-surface)] text-[var(--p-ink)] hover:border-[var(--p-accent)]'
                 }`}
               >
                 {tab.label}
@@ -143,11 +149,11 @@ export function MyVaultPage() {
       ) : entries.length === 0 ? (
         <EmptyState
           title="Your vault is empty"
-          description="Save reusable snippets or private prompts here to keep them organized."
+          description="Save reusable snippets, private prompts, or portable SKILL.md workflows here."
           action={
             <Link
               to="/new"
-              className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+              className="rounded-md bg-[var(--p-accent)] px-4 py-2 text-sm font-medium text-[var(--p-accent-ink)]"
             >
               Create First Entry
             </Link>
@@ -156,12 +162,12 @@ export function MyVaultPage() {
       ) : filteredEntries.length === 0 ? (
         <EmptyState
           title="No matching entries in this view"
-          description="Switch filter tabs above or create a new snippet or prompt."
+          description="Switch filter tabs above or create a new snippet, prompt, or SKILL.md file."
           action={
             <button
               type="button"
               onClick={() => setActiveFilter('ALL')}
-              className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+              className="rounded-md bg-[var(--p-accent)] px-4 py-2 text-sm font-medium text-[var(--p-accent-ink)]"
             >
               Show All Entries
             </button>
@@ -178,7 +184,7 @@ export function MyVaultPage() {
                   <Link
                     to={`/entries/${entry.id}/edit`}
                     aria-label={`Edit ${entry.title}`}
-                    className="inline-flex items-center gap-1 rounded border border-slate-200 px-1.5 py-0.5 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    className="inline-flex items-center gap-1 rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2 py-0.5 text-xs font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
                   >
                     <Edit3 className="h-3 w-3" aria-hidden="true" />
                     Edit
@@ -187,7 +193,7 @@ export function MyVaultPage() {
                     type="button"
                     aria-label={`Delete ${entry.title}`}
                     onClick={() => setDeleteTarget(entry)}
-                    className="inline-flex items-center gap-1 rounded border border-rose-200 px-1.5 py-0.5 text-xs font-medium text-rose-700 hover:bg-rose-50"
+                    className="inline-flex items-center gap-1 rounded border border-rose-500/40 bg-rose-500/10 px-1.5 py-0.5 text-xs font-medium text-rose-500 hover:bg-rose-500/20 dark:text-rose-300"
                   >
                     <Trash2 className="h-3 w-3" aria-hidden="true" />
                   </button>
@@ -203,18 +209,18 @@ export function MyVaultPage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="vault-delete-dialog-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
         >
-          <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-lg">
+          <div className="w-full max-w-md rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] p-6 shadow-xl">
             <h2
               id="vault-delete-dialog-title"
-              className="text-lg font-semibold text-slate-900"
+              className="font-display text-lg font-medium text-[var(--p-ink)]"
             >
               Delete Entry
             </h2>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-[var(--p-muted)]">
               Permanently delete{' '}
-              <strong className="font-medium text-slate-900">
+              <strong className="font-medium text-[var(--p-ink)]">
                 {deleteTarget.title}
               </strong>
               ? This action cannot be undone.
@@ -224,7 +230,7 @@ export function MyVaultPage() {
                 type="button"
                 disabled={deleting}
                 onClick={() => setDeleteTarget(null)}
-                className="rounded-md border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3.5 py-2 text-sm font-medium text-[var(--p-ink)]"
               >
                 Cancel
               </button>

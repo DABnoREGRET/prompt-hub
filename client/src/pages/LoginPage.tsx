@@ -55,16 +55,18 @@ export function LoginPage() {
   };
 
   return (
-    <div className="mx-auto max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <h1 className="text-xl font-semibold text-slate-900">Sign in to Prompt Hub</h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Access your personal vault, bookmarks, and AI prompt tools.
+    <div className="mx-auto max-w-md rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] p-6 sm:p-8">
+      <h1 className="font-display text-2xl font-normal text-[var(--p-ink)]">
+        Sign in to Prompt Hub
+      </h1>
+      <p className="mt-1.5 text-sm text-[var(--p-muted)]">
+        Access your personal vault, bookmarks, SKILL.md templates, and AI assistant tools.
       </p>
 
       {serverError ? (
         <div
           role="alert"
-          className="mt-4 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800"
+          className="mt-4 rounded border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm text-rose-500 dark:text-rose-300"
         >
           {serverError}
         </div>
@@ -74,7 +76,7 @@ export function LoginPage() {
         <div>
           <label
             htmlFor="login-email"
-            className="block text-sm font-medium text-slate-700"
+            className="block text-sm font-medium text-[var(--p-ink)]"
           >
             Email
           </label>
@@ -84,18 +86,18 @@ export function LoginPage() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+            className="mt-1 block h-10 w-full rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm text-[var(--p-ink)] placeholder:text-[var(--p-muted)] focus:border-[var(--p-accent)] focus:outline-none"
             placeholder="you@example.com"
           />
           {fieldErrors.email ? (
-            <p className="mt-1 text-xs text-rose-600">{fieldErrors.email}</p>
+            <p className="mt-1 text-xs text-rose-500">{fieldErrors.email}</p>
           ) : null}
         </div>
 
         <div>
           <label
             htmlFor="login-password"
-            className="block text-sm font-medium text-slate-700"
+            className="block text-sm font-medium text-[var(--p-ink)]"
           >
             Password
           </label>
@@ -105,26 +107,26 @@ export function LoginPage() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+            className="mt-1 block h-10 w-full rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm text-[var(--p-ink)] placeholder:text-[var(--p-muted)] focus:border-[var(--p-accent)] focus:outline-none"
             placeholder="••••••••"
           />
           {fieldErrors.password ? (
-            <p className="mt-1 text-xs text-rose-600">{fieldErrors.password}</p>
+            <p className="mt-1 text-xs text-rose-500">{fieldErrors.password}</p>
           ) : null}
         </div>
 
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-tactile h-10 w-full rounded-md bg-[var(--p-accent)] px-4 text-sm font-medium text-[var(--p-accent-ink)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
 
-      <p className="mt-5 text-center text-sm text-slate-600">
+      <p className="mt-5 text-center text-sm text-[var(--p-muted)]">
         New to Prompt Hub?{' '}
-        <Link to="/register" className="font-medium text-emerald-700 hover:underline">
+        <Link to="/register" className="font-medium text-[var(--p-accent)] hover:underline">
           Create an account
         </Link>
       </p>

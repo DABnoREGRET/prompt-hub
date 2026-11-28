@@ -1,11 +1,13 @@
-import { Code2, LogOut, Menu, Plus, Shield, X } from 'lucide-react';
+import { LogOut, Menu, Moon, Plus, Shield, Sun, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
 
 export function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -18,29 +20,61 @@ export function Navbar() {
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+    `border-b-2 px-2.5 py-1.5 text-sm font-medium transition-colors ${
       isActive
-        ? 'bg-emerald-50 text-emerald-700'
-        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+        ? 'border-[var(--p-accent)] text-[var(--p-ink)]'
+        : 'border-transparent text-[var(--p-muted)] hover:text-[var(--p-ink)]'
     }`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 border-b border-[var(--p-hairline)] bg-[var(--p-bg)]">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-10">
         <div className="flex items-center gap-6">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:rounded focus:bg-[var(--p-accent)] focus:px-3 focus:py-1.5 focus:text-xs focus:font-medium focus:text-[var(--p-accent-ink)]"
+          >
+            Skip to content
+          </a>
+
           <Link
             to="/"
-            className="flex items-center gap-2 text-base font-semibold text-slate-900"
+            className="flex items-center gap-2.5 text-base font-medium tracking-tight text-[var(--p-ink)]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-600 text-white">
-              <Code2 className="h-4 w-4" aria-hidden="true" />
-            </span>
-            <span>Prompt Hub</span>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+              className="text-[var(--p-accent)]"
+            >
+              <rect
+                x="2"
+                y="2"
+                width="20"
+                height="20"
+                rx="3"
+                stroke="currentColor"
+                strokeWidth="1.75"
+              />
+              <path
+                d="M7 9l3 3-3 3M12 15h5"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="font-display text-lg font-medium">Prompt Hub</span>
           </Link>
 
-          <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Main navigation" className="hidden items-center gap-2 md:flex">
             <NavLink to="/" end className={navLinkClass}>
               Explore
+            </NavLink>
+            <NavLink to="/skills" className={navLinkClass}>
+              Curated Skills
             </NavLink>
             {isAuthenticated ? (
               <>
@@ -63,23 +97,36 @@ export function Navbar() {
           </nav>
         </div>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-2.5 md:flex">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="btn-tactile inline-flex h-10 w-10 items-center justify-center rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] text-[var(--p-ink)] hover:border-[var(--p-accent)]"
+          >
+            {theme === 'dark' ? (
+              <Sun className="h-4 w-4 text-[var(--p-accent)]" aria-hidden="true" />
+            ) : (
+              <Moon className="h-4 w-4" aria-hidden="true" />
+            )}
+          </button>
+
           {isAuthenticated && user ? (
             <>
               <Link
                 to="/new"
-                className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="btn-tactile inline-flex h-10 items-center gap-1.5 rounded-md bg-[var(--p-accent)] px-4 text-sm font-medium text-[var(--p-accent-ink)]"
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 New Entry
               </Link>
-              <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+              <span className="rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] px-2.5 py-1.5 font-mono text-xs text-[var(--p-ink)]">
                 {user.username}
               </span>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1 rounded-md border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                className="btn-tactile inline-flex h-10 items-center gap-1.5 rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] px-3 text-sm font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
               >
                 <LogOut className="h-4 w-4" aria-hidden="true" />
                 Sign out
@@ -89,13 +136,13 @@ export function Navbar() {
             <>
               <Link
                 to="/login"
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                className="px-3 py-2 text-sm font-medium text-[var(--p-muted)] hover:text-[var(--p-ink)]"
               >
                 Sign in
               </Link>
               <Link
                 to="/register"
-                className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+                className="btn-tactile inline-flex h-10 items-center rounded-md bg-[var(--p-accent)] px-4 text-sm font-medium text-[var(--p-accent-ink)]"
               >
                 Create account
               </Link>
@@ -103,20 +150,35 @@ export function Navbar() {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setMenuOpen((prev) => !prev)}
-          aria-expanded={menuOpen}
-          aria-label="Toggle navigation menu"
-          className="rounded-md p-2 text-slate-600 hover:bg-slate-100 md:hidden"
-        >
-          {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] text-[var(--p-ink)]"
+          >
+            {theme === 'dark' ? (
+              <Sun className="h-4 w-4 text-[var(--p-accent)]" aria-hidden="true" />
+            ) : (
+              <Moon className="h-4 w-4" aria-hidden="true" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            aria-expanded={menuOpen}
+            aria-label="Toggle navigation menu"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] text-[var(--p-ink)]"
+          >
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {menuOpen ? (
-        <div className="border-t border-slate-200 bg-white px-4 py-3 md:hidden">
-          <div className="flex flex-col gap-1">
+        <div className="border-t border-[var(--p-hairline)] bg-[var(--p-surface)] px-4 py-4 md:hidden">
+          <div className="flex flex-col gap-2">
             <NavLink
               to="/"
               end
@@ -124,6 +186,13 @@ export function Navbar() {
               onClick={() => setMenuOpen(false)}
             >
               Explore
+            </NavLink>
+            <NavLink
+              to="/skills"
+              className={navLinkClass}
+              onClick={() => setMenuOpen(false)}
+            >
+              Curated Skills
             </NavLink>
             {isAuthenticated && user ? (
               <>
@@ -157,32 +226,32 @@ export function Navbar() {
                     Admin
                   </NavLink>
                 ) : null}
-                <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2">
-                  <span className="text-xs font-medium text-slate-600">
+                <div className="mt-2 flex items-center justify-between border-t border-[var(--p-hairline)] pt-3">
+                  <span className="font-mono text-xs text-[var(--p-muted)]">
                     Signed in as {user.username}
                   </span>
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700"
+                    className="rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 py-1.5 text-xs font-medium text-[var(--p-ink)]"
                   >
                     Sign out
                   </button>
                 </div>
               </>
             ) : (
-              <div className="mt-2 flex flex-col gap-2 border-t border-slate-100 pt-2">
+              <div className="mt-2 flex flex-col gap-2 border-t border-[var(--p-hairline)] pt-3">
                 <Link
                   to="/login"
                   onClick={() => setMenuOpen(false)}
-                  className="rounded-md border border-slate-300 px-3 py-1.5 text-center text-sm font-medium text-slate-700"
+                  className="rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 py-2 text-center text-sm font-medium text-[var(--p-ink)]"
                 >
                   Sign in
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMenuOpen(false)}
-                  className="rounded-md bg-slate-900 px-3 py-1.5 text-center text-sm font-medium text-white"
+                  className="rounded-md bg-[var(--p-accent)] px-3 py-2 text-center text-sm font-medium text-[var(--p-accent-ink)]"
                 >
                   Create account
                 </Link>

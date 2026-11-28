@@ -60,18 +60,18 @@ export function PromptPlayground({ content }: { content: string }) {
   return (
     <section
       aria-label="Prompt Playground"
-      className="space-y-4 rounded-xl border border-emerald-200 bg-emerald-50/40 p-5"
+      className="space-y-4 rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] p-5"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-600 text-white">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded bg-[var(--p-accent)] text-[var(--p-accent-ink)]">
             <Play className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
           <div>
-            <h2 className="text-base font-semibold text-slate-900">
+            <h2 className="font-display text-base font-medium text-[var(--p-ink)]">
               Interactive Prompt Playground
             </h2>
-            <p className="text-xs text-slate-600">
+            <p className="text-xs text-[var(--p-muted)]">
               {variables.length > 0
                 ? `Fill ${variables.length} template ${variables.length === 1 ? 'variable' : 'variables'} to render and copy the compiled prompt.`
                 : 'No {{variables}} detected in this prompt template.'}
@@ -84,7 +84,7 @@ export function PromptPlayground({ content }: { content: string }) {
             <button
               type="button"
               onClick={() => setValues({})}
-              className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+              className="btn-tactile inline-flex items-center gap-1 rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2.5 py-1.5 text-xs font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
               Reset Variables
@@ -93,7 +93,7 @@ export function PromptPlayground({ content }: { content: string }) {
           <button
             type="button"
             onClick={handleCopyCompiled}
-            className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
+            className="btn-tactile inline-flex items-center gap-1.5 rounded bg-[var(--p-accent)] px-3 py-1.5 text-xs font-medium text-[var(--p-accent-ink)]"
           >
             {copied ? (
               <>
@@ -118,7 +118,7 @@ export function PromptPlayground({ content }: { content: string }) {
               <div key={variable}>
                 <label
                   htmlFor={inputId}
-                  className="mb-1 block font-mono text-xs font-medium text-slate-700"
+                  className="mb-1 block font-mono text-xs font-medium text-[var(--p-ink)]"
                 >
                   {variable}
                 </label>
@@ -133,7 +133,7 @@ export function PromptPlayground({ content }: { content: string }) {
                     }))
                   }
                   placeholder={`Enter ${variable}...`}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  className="h-9 w-full rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm text-[var(--p-ink)] placeholder:text-[var(--p-muted)] focus:border-[var(--p-accent)] focus:outline-none"
                 />
               </div>
             );
@@ -142,10 +142,10 @@ export function PromptPlayground({ content }: { content: string }) {
       ) : null}
 
       <div>
-        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <p className="mb-1.5 font-mono text-xs font-medium uppercase tracking-wide text-[var(--p-muted)]">
           Compiled Output
         </p>
-        <pre className="max-h-72 overflow-x-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-slate-900 p-4 font-mono text-xs leading-relaxed text-slate-100">
+        <pre className="max-h-72 overflow-x-auto whitespace-pre-wrap rounded border border-[var(--p-hairline)] bg-[var(--p-code-bg)] p-4 font-mono text-xs leading-relaxed text-[var(--p-code-ink)]">
           <code>{compiledPrompt}</code>
         </pre>
       </div>

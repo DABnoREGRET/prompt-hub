@@ -1,4 +1,4 @@
-import { ArrowLeft, Plus, X } from 'lucide-react';
+import { ArrowLeft, FileCode2, Plus, X } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiClientError } from '../api/client';
@@ -28,6 +28,17 @@ const FORM_LANGUAGES = [
   'json',
   'plaintext',
 ] as const;
+
+const SKILL_MD_STARTER = `---
+name: my-harness-skill
+description: Describe exact trigger phrases and when an AI harness should load this skill.
+---
+
+# Workflow Instructions
+
+1. Inspect relevant workspace files and schemas before making edits.
+2. Write or verify automated tests covering happy paths and edge cases.
+3. Run workspace verification checks cleanly before reporting results.`;
 
 export function EntryFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -130,6 +141,22 @@ export function EntryFormPage() {
     () => (entryType === 'PROMPT' ? extractPromptVariables(content) : []),
     [entryType, content],
   );
+
+  const handleEntryTypeChange = (nextType: EntryType) => {
+    setEntryType(nextType);
+    if (nextType === 'SKILL' && language === 'typescript') {
+      setLanguage('markdown');
+    }
+  };
+
+  const handleInsertSkillTemplate = () => {
+    setLanguage('markdown');
+    setContent(SKILL_MD_STARTER);
+    setTags((prev) =>
+      prev.includes('skill-md') || prev.length >= 8 ? prev : [...prev, 'skill-md'],
+    );
+    showToast('Inserted SKILL.md YAML frontmatter template', 'info');
+  };
 
   const handleAddTag = () => {
     const slug = normalizeTagSlug(tagDraft);
@@ -249,7 +276,7 @@ export function EntryFormPage() {
       <div className="space-y-4">
         <Link
           to="/vault"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--p-muted)] hover:text-[var(--p-ink)]"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to My Vault
@@ -270,27 +297,27 @@ export function EntryFormPage() {
       <div>
         <Link
           to={isEdit && entryId ? `/entries/${entryId}` : '/vault'}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--p-muted)] hover:text-[var(--p-ink)]"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           {isEdit ? 'Back to Entry' : 'Back to My Vault'}
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-slate-900">
+        <h1 className="mt-2 font-display text-2xl font-normal text-[var(--p-ink)] sm:text-3xl">
           {isEdit ? 'Edit Entry' : 'Create New Entry'}
         </h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Store a reusable code snippet or parameterized{' '}
-          <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-xs">
-            {'{{variable}}'}
-          </code>{' '}
-          AI prompt in your vault.
+        <p className="mt-1 text-sm text-[var(--p-muted)]">
+          Store a reusable code snippet, parameterized{' '}
+          <code className="font-mono text-xs text-[var(--p-ink)]">{'{{variable}}'}</code>{' '}
+          prompt, or copy-paste{' '}
+          <code className="font-mono text-xs text-[var(--p-ink)]">SKILL.md</code>{' '}
+          agent workflow.
         </p>
       </div>
 
       {submitError ? (
         <div
           role="alert"
-          className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+          className="rounded-md border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-500 dark:text-rose-300"
         >
           {submitError}
         </div>
@@ -299,12 +326,12 @@ export function EntryFormPage() {
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="space-y-5 rounded-xl border border-slate-200 bg-white p-6"
+        className="space-y-5 rounded-md border border-[var(--p-hairline)] bg-[var(--p-surface)] p-6"
       >
         <div>
           <label
             htmlFor="entry-title"
-            className="mb-1 block text-sm font-medium text-slate-700"
+            className="mb-1 block text-sm font-medium text-[var(--p-ink)]"
           >
             Title
           </label>
@@ -313,11 +340,11 @@ export function EntryFormPage() {
             type="text"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="e.g., Zod Env Parser or PR Code Review Prompt"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            placeholder="e.g., Zod Env Parser or TDD Guard SKILL.md"
+            className="h-10 w-full rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm text-[var(--p-ink)] placeholder:text-[var(--p-muted)] focus:border-[var(--p-accent)] focus:outline-none"
           />
           {fieldErrors.title ? (
-            <p className="mt-1 text-xs text-rose-600">{fieldErrors.title}</p>
+            <p className="mt-1 text-xs text-rose-500">{fieldErrors.title}</p>
           ) : null}
         </div>
 
@@ -325,25 +352,28 @@ export function EntryFormPage() {
           <div>
             <label
               htmlFor="entry-type"
-              className="mb-1 block text-sm font-medium text-slate-700"
+              className="mb-1 block text-sm font-medium text-[var(--p-ink)]"
             >
               Entry Type
             </label>
             <select
               id="entry-type"
               value={entryType}
-              onChange={(event) => setEntryType(event.target.value as EntryType)}
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              onChange={(event) =>
+                handleEntryTypeChange(event.target.value as EntryType)
+              }
+              className="h-10 w-full rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm text-[var(--p-ink)] focus:border-[var(--p-accent)] focus:outline-none"
             >
               <option value="SNIPPET">Code Snippet</option>
               <option value="PROMPT">AI Prompt</option>
+              <option value="SKILL">SKILL.md Agent Skill</option>
             </select>
           </div>
 
           <div>
             <label
               htmlFor="entry-language"
-              className="mb-1 block text-sm font-medium text-slate-700"
+              className="mb-1 block text-sm font-medium text-[var(--p-ink)]"
             >
               Language
             </label>
@@ -351,7 +381,7 @@ export function EntryFormPage() {
               id="entry-language"
               value={language}
               onChange={(event) => setLanguage(event.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className="h-10 w-full rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm text-[var(--p-ink)] focus:border-[var(--p-accent)] focus:outline-none"
             >
               {languageOptions.map((lang) => (
                 <option key={lang} value={lang}>
@@ -360,14 +390,14 @@ export function EntryFormPage() {
               ))}
             </select>
             {fieldErrors.language ? (
-              <p className="mt-1 text-xs text-rose-600">{fieldErrors.language}</p>
+              <p className="mt-1 text-xs text-rose-500">{fieldErrors.language}</p>
             ) : null}
           </div>
 
           <div>
             <label
               htmlFor="entry-category"
-              className="mb-1 block text-sm font-medium text-slate-700"
+              className="mb-1 block text-sm font-medium text-[var(--p-ink)]"
             >
               Category
             </label>
@@ -377,7 +407,7 @@ export function EntryFormPage() {
               onChange={(event) =>
                 setCategoryId(event.target.value ? Number(event.target.value) : null)
               }
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className="h-10 w-full rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm text-[var(--p-ink)] focus:border-[var(--p-accent)] focus:outline-none"
             >
               <option value="">Uncategorized</option>
               {categories.map((cat) => (
@@ -391,7 +421,7 @@ export function EntryFormPage() {
           <div>
             <label
               htmlFor="entry-visibility"
-              className="mb-1 block text-sm font-medium text-slate-700"
+              className="mb-1 block text-sm font-medium text-[var(--p-ink)]"
             >
               Visibility
             </label>
@@ -401,7 +431,7 @@ export function EntryFormPage() {
               onChange={(event) =>
                 setVisibility(event.target.value as EntryVisibility)
               }
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className="h-10 w-full rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm text-[var(--p-ink)] focus:border-[var(--p-accent)] focus:outline-none"
             >
               <option value="PUBLIC">Public (Explore)</option>
               <option value="PRIVATE">Private (Only Me)</option>
@@ -412,7 +442,7 @@ export function EntryFormPage() {
         <div>
           <label
             htmlFor="entry-description"
-            className="mb-1 block text-sm font-medium text-slate-700"
+            className="mb-1 block text-sm font-medium text-[var(--p-ink)]"
           >
             Description
           </label>
@@ -421,27 +451,39 @@ export function EntryFormPage() {
             type="text"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Brief summary of when to use this snippet or prompt..."
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            placeholder="Brief summary of when to use this snippet, prompt, or SKILL.md..."
+            className="h-10 w-full rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm text-[var(--p-ink)] placeholder:text-[var(--p-muted)] focus:border-[var(--p-accent)] focus:outline-none"
           />
           {fieldErrors.description ? (
-            <p className="mt-1 text-xs text-rose-600">{fieldErrors.description}</p>
+            <p className="mt-1 text-xs text-rose-500">{fieldErrors.description}</p>
           ) : null}
         </div>
 
         <div>
-          <div className="mb-1 flex items-center justify-between gap-2">
+          <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
             <label
               htmlFor="entry-content"
-              className="block text-sm font-medium text-slate-700"
+              className="block text-sm font-medium text-[var(--p-ink)]"
             >
               Content
             </label>
-            {detectedVars.length > 0 ? (
-              <span className="text-xs font-medium text-emerald-700">
-                Detected variables: {detectedVars.map((v) => `{{${v}}}`).join(', ')}
-              </span>
-            ) : null}
+            <div className="flex flex-wrap items-center gap-2">
+              {entryType === 'SKILL' ? (
+                <button
+                  type="button"
+                  onClick={handleInsertSkillTemplate}
+                  className="inline-flex items-center gap-1 rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2.5 py-1 font-mono text-xs font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
+                >
+                  <FileCode2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  Insert SKILL.md Template
+                </button>
+              ) : null}
+              {detectedVars.length > 0 ? (
+                <span className="font-mono text-xs font-medium text-emerald-500">
+                  Detected variables: {detectedVars.map((v) => `{{${v}}}`).join(', ')}
+                </span>
+              ) : null}
+            </div>
           </div>
           <textarea
             id="entry-content"
@@ -449,21 +491,23 @@ export function EntryFormPage() {
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder={
-              entryType === 'PROMPT'
-                ? 'Write prompt template using {{variable}} placeholders...'
-                : 'Paste reusable code snippet...'
+              entryType === 'SKILL'
+                ? '---\nname: my-skill\ndescription: Trigger conditions...\n---\n\nWorkflow steps...'
+                : entryType === 'PROMPT'
+                  ? 'Write prompt template using {{variable}} placeholders...'
+                  : 'Paste reusable code snippet...'
             }
-            className="w-full rounded-md border border-slate-300 bg-slate-900 p-3 font-mono text-xs leading-relaxed text-slate-100 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full rounded-md border border-[var(--p-hairline)] bg-[var(--p-code-bg)] p-3.5 font-mono text-xs leading-relaxed text-[var(--p-code-ink)] placeholder:text-white/40 focus:border-[var(--p-accent)] focus:outline-none"
           />
           {fieldErrors.content ? (
-            <p className="mt-1 text-xs text-rose-600">{fieldErrors.content}</p>
+            <p className="mt-1 text-xs text-rose-500">{fieldErrors.content}</p>
           ) : null}
         </div>
 
         <div>
           <label
             htmlFor="entry-tag-input"
-            className="mb-1 block text-sm font-medium text-slate-700"
+            className="mb-1 block text-sm font-medium text-[var(--p-ink)]"
           >
             Add Tags (max 8)
           </label>
@@ -474,20 +518,20 @@ export function EntryFormPage() {
               value={tagDraft}
               onChange={(event) => setTagDraft(event.target.value)}
               onKeyDown={handleTagKeyDown}
-              placeholder="e.g., typescript, code-review"
-              className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              placeholder="e.g., typescript, skill-md, code-review"
+              className="h-10 flex-1 rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm text-[var(--p-ink)] placeholder:text-[var(--p-muted)] focus:border-[var(--p-accent)] focus:outline-none"
             />
             <button
               type="button"
               onClick={handleAddTag}
-              className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="btn-tactile inline-flex h-10 items-center gap-1 rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-3 text-sm font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
             >
               <Plus className="h-4 w-4" aria-hidden="true" />
               Add Tag
             </button>
           </div>
           {fieldErrors.tags ? (
-            <p className="mt-1 text-xs text-rose-600">{fieldErrors.tags}</p>
+            <p className="mt-1 text-xs text-rose-500">{fieldErrors.tags}</p>
           ) : null}
 
           {tags.length > 0 ? (
@@ -495,14 +539,14 @@ export function EntryFormPage() {
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"
+                  className="inline-flex items-center gap-1 rounded border border-[var(--p-hairline)] bg-[var(--p-bg)] px-2.5 py-1 font-mono text-xs font-medium text-[var(--p-ink)]"
                 >
                   #{tag}
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
                     aria-label={`Remove tag ${tag}`}
-                    className="rounded-full p-0.5 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
+                    className="rounded p-0.5 text-[var(--p-muted)] hover:bg-[var(--p-elevated)] hover:text-[var(--p-ink)]"
                   >
                     <X className="h-3 w-3" aria-hidden="true" />
                   </button>
@@ -512,17 +556,17 @@ export function EntryFormPage() {
           ) : null}
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
+        <div className="flex items-center justify-end gap-3 border-t border-[var(--p-hairline)] pt-4">
           <Link
             to={isEdit && entryId ? `/entries/${entryId}` : '/vault'}
-            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-md border border-[var(--p-hairline)] bg-[var(--p-bg)] px-4 py-2 text-sm font-medium text-[var(--p-ink)] hover:border-[var(--p-accent)]"
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="btn-tactile rounded-md bg-[var(--p-accent)] px-4 py-2 text-sm font-medium text-[var(--p-accent-ink)] disabled:opacity-60"
           >
             {submitting
               ? 'Saving...'
